@@ -27,7 +27,7 @@
 <meta property="og:description" content="本文档建立在Vol1之上，还未完成Vol1请先完成Vol1。Vol1文档中指出跨域问题有CORS与Nginx两种解决方案，本文档将介绍这里的Nginx反向代理解决方案。后端所用语言是Go，前端为html。本文会有概念与实操，按文档进行以获得最佳效果。 模块一：检查服务器权限Step1:SSH连接到服务器。 Step2:遇到端口被占用，导致后端服务跑不起来的场景非常常见，下面以此为背景验证sudo权">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2026-04-03T12:00:00.000Z">
-<meta property="article:modified_time" content="2026-04-02T09:01:47.580Z">
+<meta property="article:modified_time" content="2026-04-02T09:06:28.956Z">
 <meta property="article:author" content="imaginary">
 <meta property="article:tag" content="Go">
 <meta property="article:tag" content="Nginx">
@@ -410,7 +410,7 @@
 <p>此时会出现文件编辑页面，使用箭头移动光标，找到：</p>
 <figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><code class="hljs nginx"><span class="hljs-section">server</span><br>    &#123;<br>        <span class="hljs-attribute">listen</span> <span class="hljs-number">888</span>;<br>        <span class="hljs-attribute">server_name</span> phpmyadmin;<br>        <span class="hljs-attribute">index</span> index.html index.htm index.php;<br>        <span class="hljs-attribute">root</span>  /www/server/phpmyadmin;<br><br>        <span class="hljs-comment">#error_page   404   /404.html;</span><br>        <span class="hljs-attribute">include</span> enable-php.conf;<br><br>        <span class="hljs-section">location</span> <span class="hljs-regexp">~ .*\.(gif|jpg|jpeg|png|bmp|swf)$</span><br>        &#123;<br>            <span class="hljs-attribute">expires</span>      <span class="hljs-number">30d</span>;<br>        &#125;<br><br>        <span class="hljs-section">location</span> <span class="hljs-regexp">~ .*\.(js|css)?$</span><br>        &#123;<br>            <span class="hljs-attribute">expires</span>      <span class="hljs-number">12h</span>;<br>        &#125;<br><br>        <span class="hljs-section">location</span> <span class="hljs-regexp">~ /\.</span><br>        &#123;<br>            <span class="hljs-attribute">deny</span> all;<br>        &#125;<br><br>        <span class="hljs-attribute">access_log</span>  /www/wwwlogs/access.log;<br>    &#125;<br></code></pre></td></tr></table></figure>
 
-<p>这是Nginx的默认配置，我们发现此时Nginx转发了888端口，我们在浏览器打开 <code>http://47.101.141.52:888/</code> ，会看到浏览器显示404 NOT FOUND，Nginx。接下来我们将修改这个默认配置，使其适应我们在Vol1做的go-demo01。</p>
+<p>这是Nginx的默认配置，我们发现此时Nginx转发了888端口，我们在浏览器打开 <a href="http://47.101.141.52:888/" target="_blank"><code>http://47.101.141.52:888/</code></a> ，会看到浏览器显示404 NOT FOUND，Nginx。接下来我们将修改这个默认配置，使其适应我们在Vol1做的go-demo01。</p>
 <p>Step3:<br>使用vim修改nginx.conf，以下给出vim的简易操作指南。</p>
 <ul>
 <li>vim分为普通模式与插入模式，进入文件默认以普通模式进入，按 <code>i</code> 切换至插入模式，按 <code>esc</code> 切回普通模式。</li>
@@ -453,7 +453,7 @@
 <p>Step6:<br>打开服务器终端（bash）<br>启动后端服务</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">go run main.go<br></code></pre></td></tr></table></figure>
 <p>（此时任务还在进行，不要关闭终端。当测试结束后，输入ctrl+c，结束进程）</p>
-<p>访问 <code>http://47.101.141.52:888/</code> ，查看使用Nginx代理，部署到服务器上属于你的第一个网站！</p>
+<p>访问  <a href="http://47.101.141.52:888/" target="_blank"><code>http://47.101.141.52:888/</code></a> ，查看使用Nginx代理，部署到服务器上属于你的第一个网站！</p>
 <br>
 
 <p>但这个时候，可能会出现问题，比如浏览器会显示 <code>403 Forbidden</code>。这是一个很常见的问题，我们回顾Nginx的配置文件，整个文件的第一句话是：</p>
