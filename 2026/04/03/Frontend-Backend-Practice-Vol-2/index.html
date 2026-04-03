@@ -27,7 +27,7 @@
 <meta property="og:description" content="本文档建立在Vol1之上，还未完成Vol1请先完成Vol1。Vol1文档中指出跨域问题有CORS与Nginx两种解决方案，本文档将介绍这里的Nginx反向代理解决方案。后端所用语言是Go，前端为html。本文会有概念与实操，按文档进行以获得最佳效果。 模块一：检查服务器权限Step1:SSH连接到服务器。 Step2:遇到端口被占用，导致后端服务跑不起来的场景非常常见，下面以此为背景验证sudo权">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2026-04-03T12:00:00.000Z">
-<meta property="article:modified_time" content="2026-04-02T10:13:27.178Z">
+<meta property="article:modified_time" content="2026-04-03T05:07:57.705Z">
 <meta property="article:author" content="imaginary">
 <meta property="article:tag" content="Go">
 <meta property="article:tag" content="Nginx">
@@ -352,7 +352,7 @@
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-built_in">sudo</span> <span class="hljs-built_in">kill</span> -9 &lt;pid&gt;<br></code></pre></td></tr></table></figure>
 <p>强制结束任务。</p>
 <p>若输出 <code>student is not in the sudoers file. This incident will be reported.</code> 表示当前用户无sudo权限，联系我。</p>
-<h2 id="模块二：Nginx介绍"><a href="#模块二：Nginx介绍" class="headerlink" title="模块二：Nginx介绍"></a>模块二：Nginx介绍</h2><p>首先需要明确的是，跨域是什么？如果不记得的话点击这里，查看vol1的介绍。</p>
+<h2 id="模块二：Nginx介绍"><a href="#模块二：Nginx介绍" class="headerlink" title="模块二：Nginx介绍"></a>模块二：Nginx介绍</h2><p>首先需要明确的是，跨域是什么？如果不记得的话<a href="https://justimaginary.github.io/2026/03/30/Frontend-Backend-Practice-Vol-1/#CORS%E4%B8%8E%E8%B7%A8%E5%9F%9F" target="_blank">点击这里</a>，查看Vol1的介绍。</p>
 <p><strong>代理：</strong> 可以简单理解为中间人。</p>
 <ul>
 <li><strong>正向代理（Forward Proxy）：</strong> 比如使用的VPN。我们要访问海外服务器，但事实上直接连接是连不上的，所以要找个代理帮我们转发。而找的代理代表的是“我们（客户端）”。</li>
