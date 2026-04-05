@@ -19,15 +19,15 @@
   <meta name="author" content="imaginary">
   <meta name="keywords" content="">
   
-    <meta name="description" content="This article is also available in English. Read this article in English   中文分词是自然语言处理（NLP）的基石。在直接 import 各种高级库成为常态的今天，我准备完全不依赖诸如 CRF++ 或任何高级分词 API，基于 PyTorch 从零开始手写一个底层支持张量并行计算的 BiLSTM-CRF 模型。 最终，这个纯">
+    <meta name="description" content="This article is also available in English. Read this article in English   中文分词是自然语言处理（NLP）的基石。依托于中文信息处理课程，我准备完全不依赖诸如 CRF++ 或任何高级分词 API，基于 PyTorch 从零开始手写一个底层支持张量并行计算的 BiLSTM-CRF 模型。 并且最终，这个纯随机初始化的初始模型">
 <meta property="og:type" content="article">
 <meta property="og:title" content="从零手写 BiLSTM-CRF 分词方法">
 <meta property="og:url" content="http://justimaginary.github.io/2026/04/05/BiLSTM-CRF-From-Scratch-CN/index.html">
 <meta property="og:site_name" content="imaginary">
-<meta property="og:description" content="This article is also available in English. Read this article in English   中文分词是自然语言处理（NLP）的基石。在直接 import 各种高级库成为常态的今天，我准备完全不依赖诸如 CRF++ 或任何高级分词 API，基于 PyTorch 从零开始手写一个底层支持张量并行计算的 BiLSTM-CRF 模型。 最终，这个纯">
+<meta property="og:description" content="This article is also available in English. Read this article in English   中文分词是自然语言处理（NLP）的基石。依托于中文信息处理课程，我准备完全不依赖诸如 CRF++ 或任何高级分词 API，基于 PyTorch 从零开始手写一个底层支持张量并行计算的 BiLSTM-CRF 模型。 并且最终，这个纯随机初始化的初始模型">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2026-04-05T10:00:00.000Z">
-<meta property="article:modified_time" content="2026-04-05T14:48:27.423Z">
+<meta property="article:modified_time" content="2026-04-05T18:14:28.743Z">
 <meta property="article:author" content="imaginary">
 <meta property="article:tag" content="BiLSTM-CRF">
 <meta property="article:tag" content="PyTorch">
@@ -278,7 +278,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          5.8k words
+          5.9k words
         
       </span>
     
@@ -348,71 +348,74 @@ href="/2026/04/05/BiLSTM-CRF-From-Scratch-EN/">Read this article in
 English</a></p>
 </blockquote>
 <hr />
-<p>中文分词是自然语言处理（NLP）的基石。在直接 import
-各种高级库成为常态的今天，我准备完全不依赖诸如 CRF++ 或任何高级分词
-API，基于 PyTorch 从零开始手写一个底层支持张量并行计算的 BiLSTM-CRF
-模型。</p>
-<p>最终，这个纯随机初始化的初始模型，在 SIGHAN
-PKU（北京大学）标准测试集上，达到了 <strong>91.0% 的 F1
-分数</strong>。这篇文章记录了整个项目从理论到代码落地的全过程。</p>
+<p>中文分词是自然语言处理（NLP）的基石。依托于中文信息处理课程，我准备完全不依赖诸如
+CRF++ 或任何高级分词 API，基于 PyTorch
+从零开始手写一个底层支持张量并行计算的 BiLSTM-CRF 模型。</p>
+<p>并且最终，这个纯随机初始化的初始模型，在 SIGHAN PKU（第二届分词竞赛
+北京大学）标准测试集上，达到了 <strong>91.0% 的 F1 分数</strong>。</p>
+<p>这篇文章记录了整个项目从理论到代码落地的全过程。</p>
 <h2 id="一-把语言变成数学向量与神经网络的基础">一、
 把语言变成数学：向量与神经网络的基础</h2>
-<p>计算机看不懂汉字，它只认识数字。在将文本喂给模型之前，我们需要跨越的第一步是“数字化”。</p>
-<h3 id="词嵌入word-embedding让字拥有坐标">1. 词嵌入（Word
-Embedding）：让字拥有坐标</h3>
+<p>计算机看不懂汉字，它只认识数字。所以在将文本喂给模型之前，我们需要跨越的第一步是将其“数字化”。</p>
+<h3 id="词嵌入word-embedding">1. 词嵌入（Word Embedding）</h3>
 <p>最直白的数字化方法是给每个字编个号，比如“北”是 1，“京”是
 2。但这种编号缺乏数学意义，1 和 2 之间并没有什么逻辑关联。</p>
-<p>在 NLP 中，我们使用 <strong>词嵌入（Embedding）</strong>
-技术。它的核心思想是把每一个汉字映射成一个多维的浮点数向量（Vector）。你可以把它想象成一个高维空间中的坐标点。意思相近或经常搭配的字，在这个空间里的距离会比较近。</p>
+<p>在 自然语言处理（NLP） 中，我们使用
+<strong>词嵌入（Embedding）</strong>
+技术。它的核心思想是把每一个汉字映射成一个多维的浮点数向量（Vector）。你可以把它想象成一个高维空间中的坐标点。而意思相近或经常搭配的字，在这个空间里的距离会比较近。</p>
 <p>在 PyTorch 中，实现这一点只需要一行代码： <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-comment"># vocabSize 是词表大小，embeddingDim 是向量的维度（例如 128维）</span><br><span class="hljs-variable language_">self</span>.wordEmbeds = nn.Embedding(vocabSize, embeddingDim)<br></code></pre></td></tr></table></figure></p>
-<h3 id="序列建模深入-bilstm-的内部齿轮">2. 序列建模：深入 BiLSTM
-的内部齿轮</h3>
+<h3 id="序列建模">2. 序列建模</h3>
 <p>传统的神经网络处理输入时是孤立的，但人类语言是一个序列。比如“斯”字，在“俄罗斯”和“斯文”中，分词的切分方式完全不同。</p>
 <p>我们需要一个能“记住上下文”的模型，而
 <strong>LSTM（长短期记忆网络）</strong>
-就是为了解决序列记忆问题而生的。为了让你彻底明白它是怎么工作的，我们来拆解一下它内部的核心齿轮。</p>
-<p>在 PyTorch 中，我们只需要一行代码： <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-comment"># hiddenDim 是 LSTM 的隐藏层维度，也就是它的“脑容量”</span><br><span class="hljs-variable language_">self</span>.lstm = nn.LSTM(embeddingDim, hiddenDim // <span class="hljs-number">2</span>, num_layers=<span class="hljs-number">2</span>, bidirectional=<span class="hljs-literal">True</span>, batch_first=<span class="hljs-literal">True</span>)<br></code></pre></td></tr></table></figure></p>
+就是为了解决序列记忆问题而生的。于是我们在中文分词选用了它，在 PyTorch
+中，我们只需要一行代码： <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-comment"># hiddenDim 是 LSTM 的隐藏层维度，也就是它的“脑容量”</span><br><span class="hljs-variable language_">self</span>.lstm = nn.LSTM(embeddingDim, hiddenDim // <span class="hljs-number">2</span>, num_layers=<span class="hljs-number">2</span>, bidirectional=<span class="hljs-literal">True</span>, batch_first=<span class="hljs-literal">True</span>)<br></code></pre></td></tr></table></figure></p>
 <h4
 id="那我们如何训练lstm里的参数使其能够预测每个字的得分情况呢"><strong>2.1
 那我们如何训练LSTM里的参数，使其能够预测每个字的得分情况呢？</strong></h4>
 <p>当写下上面那行使用LSTM的代码时，LSTM
-内部瞬间生成了成千上万个权重参数。一开始，它们全都是毫无意义的随机乱码。模型之所以能变聪明，全靠一套闭环的特训机制：
-*
-<strong>瞎猜（前向传播）</strong>：模型先用这些随机数算出一个分词结果。
-* <strong>对答案（计算
-Loss）</strong>：把猜的结果和标准答案比对，算出误差。 *
-<strong>找原因（反向传播）</strong>：顺着计算图往回推，看看是哪个权重导致了误差。
-*
-<strong>微调（优化器）</strong>：优化器把这些权重根据学习率调整一下。</p>
+内部瞬间生成了成千上万个权重参数。一开始，它们全都是毫无意义的随机乱码。模型之所以能变聪明，全靠一套闭环的特训机制：</p>
+<ul>
+<li><strong>猜测（前向传播）</strong>：模型先用这些随机数算出一个分词结果。</li>
+<li><strong>对答案（计算
+Loss）</strong>：把猜的结果和标准答案比对，算出误差。</li>
+<li><strong>找原因（反向传播）</strong>：顺着计算图往回推，看看是哪个权重导致了误差。</li>
+<li><strong>微调（优化器）</strong>：优化器根据学习率调整相关权重。</li>
+</ul>
 <p>经过几万个 Batch
 的反复训练，这些原本的随机数，最终固化成了能精准提取中文语法的“经验值”。</p>
-<p>阅读完以上内容，你可能会产生疑惑，我们到底在训练什么？接下来我将解答这个疑问
-首先我们先说明我们的标注方式： 在这里，我们使用 <strong>4-tag</strong>
+<p>阅读完以上内容，你可能会产生疑惑，我们到底在训练什么，我们的目标是得到什么？接下来我将解答这个疑问
+首先我们先说明我们的标注方式：</p>
+<p>在这里，我们使用 <strong>4-tag</strong>
 的方式标注，即将字分为4类，<code>S</code>表示单字，<code>B</code>表示
 <strong>词首</strong> ，<code>M</code>表示 <strong>词中</strong>
 ，<code>E</code>表示 <strong>词尾</strong>。
 例如对句子<code>“我是一名程序员。”</code>中每个字的类别，即：
 <figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs txt">我/S 是/S 一/B 名/E 程/B 序/M 员/E。/S<br>我 / 是 /  一名 / 程序员 / 。 <br></code></pre></td></tr></table></figure></p>
-<p>弄清楚怎样标注后，我们就想通过LSTM获得这个字最可能的标注，于是就想到能不能让LSTM生成一张得分表。
-事实上我们也就是这样做的，在经过 BiLSTM
+<p>弄清楚怎样标注后，我们就想通过LSTM获得这个字最可能的标注，于是就想到能不能让LSTM生成一张得分表。</p>
+<p>事实上我们也就是这样做的，在经过 BiLSTM
 网络的深层特征提取后，原本独立的汉字向量已经融合了整句话的上下文信息，变成了包含了过去与未来视野的高维隐状态向量。为了把这个抽象的向量变成我们需要的得分，我们在
 LSTM 后面接上了一个 <strong>线性层（nn.Linear）</strong> 。</p>
 <p>这个线性层就像一个压缩机，把高维特征强行映射成对应标签的分数集合。比如当网络读到“程”字时，它可能会输出这样一张得分表：
 <figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs txt">B（词首）: 5.8<br>M（词中）: 1.2<br>E（词尾）: -2.3<br>S（单字）: -0.5<br></code></pre></td></tr></table></figure> 在这张表里，LSTM 强烈认为“程”字是一个词的开头（得分为
 5.8）。这种分数在学术上被称为发射分（Emission
 Score）。但我们能不能就此使用这个最高的分值作为这个字的标签呢？答案是否定的，具体为什么，我们在后续介绍。</p>
-<p>现在你应该清楚了，我们使用LSTM到底是为了生成什么，在进行下一步之前，我觉得有必要<strong>介绍一下LSTM简要的运行模式：</strong></p>
+<p>现在我们已经理解使用LSTM到底是为了生成什么，在进行下一步之前，我觉得有必要<strong>介绍一下LSTM简要的运行模式：</strong></p>
 <h4
 id="双线操作长期记忆与短期记忆的秘密"><strong>双线操作：长期记忆与短期记忆的秘密</strong></h4>
 <p>如果你看过 LSTM
-的内部结构图，会发现信息在里面分成了两条线在跑，这也是它区别于普通RNN（循环神经网络）的地方，我们在这里只粗略展示了一下细节：
-* <strong>内部传送带：细胞状态（Cell State /
+的内部结构图，会发现信息在里面分成了两条线在跑，这也是它区别于普通RNN（循环神经网络）的地方，我们在这里只粗略展示了一下细节：</p>
+<ul>
+<li><p><strong>内部传送带：细胞状态（Cell State /
 长期记忆）</strong>：这是贯穿 LSTM
 内部的一条“绿色主干道”。它的信息流动非常平稳，只进行简单的加法和乘法。这使得即使是很久以前读到的词，其语境信息也能顺着传送带一直往后传，完美解决了传统神经网络容易“健忘”的缺陷。这条线是
-LSTM 的内部机密，不对外公开。 * <strong>官方发言人：隐藏状态（Hidden
-State / 短期记忆）</strong>：这是 LSTM 暴露在台前的“红色输出线”。当 LSTM
-读完当前这个字后，它会审视一下自己的“长期记忆”，然后结合当前刚读进来的字，决定提取哪些信息作为最终结论。</p>
-<p>我们在代码里接收到的 <code>lstmOut</code>： <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs python">lstmOut, _ = <span class="hljs-variable language_">self</span>.lstm(embeds)<br></code></pre></td></tr></table></figure> 这个
+LSTM 的内部机密，不对外公开。</p></li>
+<li><p><strong>官方发言人：隐藏状态（Hidden State /
+短期记忆）</strong>：这是 LSTM 暴露在台前的“红色输出线”。当 LSTM
+读完当前这个字后，它会审视一下自己的“长期记忆”，然后结合当前刚读进来的字，决定提取哪些信息作为最终结论。</p></li>
+</ul>
+<p>在网络运行预测的时候，我们会在代码里接收到 <code>lstmOut</code>：
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs python">lstmOut, _ = <span class="hljs-variable language_">self</span>.lstm(embeds)<br></code></pre></td></tr></table></figure> 这个
 <code>lstmOut</code>，拿到的全都是“短期记忆”（隐藏状态）。它是 LSTM
 综合了全局的长期记忆后，向上层网络（全连接层和 CRF）交出的最终答卷。</p>
 <p>为了让模型既能看上文，也能看下文，我们开启了
@@ -421,8 +424,9 @@ State / 短期记忆）</strong>：这是 LSTM 暴露在台前的“红色输出
 <h2 id="二-我们为什么需要crf">二、 我们为什么需要CRF？</h2>
 <p>如果 BiLSTM
 已经能给每个字打分了，为什么我们不直接选分数最高的那个标签？</p>
-<p>因为语言有其固定的组合规则。在 BMES 标注体系中，B 后面只能接 M 或
-E，绝对不可能直接接 B 或 S。BiLSTM
+<p>因为语言有其固定的组合规则。在 BMES 标注体系中， <code>B</code>
+后面只能接 <code>M</code> 或 <code>E</code>，绝对不可能直接接
+<code>B</code> 或 <code>S</code>。BiLSTM
 虽然能结合上下文，但它在最终输出标签时，每个字依然是独立决策的，它偶尔会犯“语法错误”。</p>
 <p>这时候就需要 <strong>条件随机场（CRF）</strong> 出场了。CRF
 的本质是一张转移概率矩阵（Transition
@@ -442,9 +446,9 @@ i) + \sum_{i,j} \mu_j s_j(y_i, x, i)\right)
 $$</span></p>
 <p>我们把它当成一个简单的“路线打分系统”来看待。</p>
 <p>公式里的 <span class="math inline"><em>x</em></span>
-是我们输入的句子（比如“同济大学”），<span
+是我们输入的句子（比如“北京大学”），<span
 class="math inline"><em>y</em></span> 是我们要评估的分词标签路线（比如
-B-E-B-E） 。这个公式其实就在算：在看到句子 <span
+<code>B-E-B-E</code>） 。这个公式其实就在算：在看到句子 <span
 class="math inline"><em>x</em></span> 时，这条特定路线 <span
 class="math inline"><em>y</em></span> 是正确答案的概率 <span
 class="math inline"><em>P</em>(<em>y</em>|<em>x</em>)</span>
@@ -524,7 +528,11 @@ Word2Vec）的情况下进一步提升泛化能力，我在训练流中加入了
 <p>使用 <code>ReduceLROnPlateau</code> 实时监控验证集的
 Loss。当模型陷入平台期时，自动缩小学习率，帮助模型在损失函数的“碗底”收敛到最精准的全局最优解。</p>
 <h2 id="五-写在最后">五、 写在最后</h2>
-<p>To be continue…</p>
+<p>Follow curiosity and passion, not trends.</p>
+<p>Life is surprisingly short, so solve problems that interest and
+excite you most</p>
+<hr />
+<p>END</p>
 
                 
               </div>
