@@ -19,15 +19,15 @@
   <meta name="author" content="imaginary">
   <meta name="keywords" content="">
   
-    <meta name="description" content="本文提供中文版本。 阅读简体中文版  Chinese word segmentation is the cornerstone of Natural Language Processing (NLP)…">
+    <meta name="description" content="本文提供中文版本。 阅读简体中文版  Chinese word segmentation is the cornerstone of Natural Language Processing (NLP). I decided not to rely on the API of CRF++ or any high-level APIs. Instead, I built a model from s">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Building BiLSTM-CRF from Scratch Segmentation">
 <meta property="og:url" content="http://justimaginary.github.io/2026/04/05/BiLSTM-CRF-From-Scratch-EN/index.html">
 <meta property="og:site_name" content="imaginary">
-<meta property="og:description" content="本文提供中文版本。 阅读简体中文版  Chinese word segmentation is the cornerstone of Natural Language Processing (NLP)…">
+<meta property="og:description" content="本文提供中文版本。 阅读简体中文版  Chinese word segmentation is the cornerstone of Natural Language Processing (NLP). I decided not to rely on the API of CRF++ or any high-level APIs. Instead, I built a model from s">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2026-04-05T10:05:00.000Z">
-<meta property="article:modified_time" content="2026-04-05T14:43:11.904Z">
+<meta property="article:modified_time" content="2026-04-05T19:26:32.798Z">
 <meta property="article:author" content="imaginary">
 <meta property="article:tag" content="BiLSTM-CRF">
 <meta property="article:tag" content="Deep Learning">
@@ -278,7 +278,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          88 words
+          558 words
         
       </span>
     
@@ -289,7 +289,7 @@
         
         
         
-          1 mins
+          5 mins
         
       </span>
     
@@ -347,7 +347,19 @@
 href="/2026/04/05/BiLSTM-CRF-From-Scratch-CN/">阅读简体中文版</a></p>
 </blockquote>
 <p>Chinese word segmentation is the cornerstone of Natural Language
-Processing (NLP)…</p>
+Processing (NLP). I decided not to rely on the API of CRF++ or any
+high-level APIs. Instead, I built a model from scratch using Pytorch to
+handle low-level tensor operations.</p>
+<p>Ultimately, this model achieved a <strong>91.0% of F1 Score</strong>
+on SIGHAN PKU!</p>
+<p>This article documents the entire process of architecting the model
+from the ground up.</p>
+<h2 id="transforming-language-into-mathematics">1.Transforming Language
+into Mathematics</h2>
+<p>Computers cannot comprehend Chinese characters directly, they
+exclusively process numerical data. So before feeding text into the
+model, we need to bridge the gap by digitizing the text.</p>
+<h3 id="word-embedding">1.1 Word Embedding</h3>
 
                 
               </div>

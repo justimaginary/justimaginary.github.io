@@ -27,7 +27,7 @@
 <meta property="og:description" content="This article is also available in English. Read this article in English   中文分词是自然语言处理（NLP）的基石。依托于中文信息处理课程，我准备完全不依赖诸如 CRF++ 或任何高级分词 API，基于 PyTorch 从零开始手写一个底层支持张量并行计算的 BiLSTM-CRF 模型。 并且最终，这个纯随机初始化的初始模型">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2026-04-05T10:00:00.000Z">
-<meta property="article:modified_time" content="2026-04-05T18:14:28.743Z">
+<meta property="article:modified_time" content="2026-04-05T19:35:54.238Z">
 <meta property="article:author" content="imaginary">
 <meta property="article:tag" content="BiLSTM-CRF">
 <meta property="article:tag" content="PyTorch">
@@ -354,8 +354,7 @@ CRF++ 或任何高级分词 API，基于 PyTorch
 <p>并且最终，这个纯随机初始化的初始模型，在 SIGHAN PKU（第二届分词竞赛
 北京大学）标准测试集上，达到了 <strong>91.0% 的 F1 分数</strong>。</p>
 <p>这篇文章记录了整个项目从理论到代码落地的全过程。</p>
-<h2 id="一-把语言变成数学向量与神经网络的基础">一、
-把语言变成数学：向量与神经网络的基础</h2>
+<h2 id="一-将语言转化为数学">一、 将语言转化为数学</h2>
 <p>计算机看不懂汉字，它只认识数字。所以在将文本喂给模型之前，我们需要跨越的第一步是将其“数字化”。</p>
 <h3 id="词嵌入word-embedding">1. 词嵌入（Word Embedding）</h3>
 <p>最直白的数字化方法是给每个字编个号，比如“北”是 1，“京”是
