@@ -19,15 +19,15 @@
   <meta name="author" content="imaginary">
   <meta name="keywords" content="">
   
-    <meta name="description" content="本文档建立在Vol.1之上，还未完成Vol.1请先完成Vol.1。Vol.1文档中指出跨域问题有CORS与Nginx两种解决方案，本文档将介绍这里的Nginx反向代理解决方案。后端所用语言是Go，前端为html。本文会有概念与实操，按文档进行以获得最佳效果。 模块一：检查服务器权限 Step1: SSH连接到服务器。 Step2: 遇到端口被占用，导致后端服务跑不起来的场景非常常见，下面以此为背景">
+    <meta name="description" content="本文档建立在Vol.1之上，还未完成Vol.1请先完成Vol.1。Vol.1文档中指出跨域问题有CORS与Nginx两种解决方案，本文档将介绍这里的Nginx反向代理解决方案。后端所用语言是Go，前端为html。本文会有概念与实操，按文档进行以获得最佳效果。 模块一：检查服务器权限Step1:SSH连接到服务器。 Step2:遇到端口被占用，导致后端服务跑不起来的场景非常常见，下面以此为背景验证s">
 <meta property="og:type" content="article">
 <meta property="og:title" content="前后端交互工程实践指南 (Vol.2：Nginx反向代理与部署)">
 <meta property="og:url" content="http://justimaginary.github.io/2026/04/03/Frontend-Backend-Practice-Vol-2/index.html">
 <meta property="og:site_name" content="imaginary">
-<meta property="og:description" content="本文档建立在Vol.1之上，还未完成Vol.1请先完成Vol.1。Vol.1文档中指出跨域问题有CORS与Nginx两种解决方案，本文档将介绍这里的Nginx反向代理解决方案。后端所用语言是Go，前端为html。本文会有概念与实操，按文档进行以获得最佳效果。 模块一：检查服务器权限 Step1: SSH连接到服务器。 Step2: 遇到端口被占用，导致后端服务跑不起来的场景非常常见，下面以此为背景">
+<meta property="og:description" content="本文档建立在Vol.1之上，还未完成Vol.1请先完成Vol.1。Vol.1文档中指出跨域问题有CORS与Nginx两种解决方案，本文档将介绍这里的Nginx反向代理解决方案。后端所用语言是Go，前端为html。本文会有概念与实操，按文档进行以获得最佳效果。 模块一：检查服务器权限Step1:SSH连接到服务器。 Step2:遇到端口被占用，导致后端服务跑不起来的场景非常常见，下面以此为背景验证s">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2026-04-03T12:00:00.000Z">
-<meta property="article:modified_time" content="2026-04-05T18:32:45.681Z">
+<meta property="article:modified_time" content="2026-04-06T15:10:23.400Z">
 <meta property="article:author" content="imaginary">
 <meta property="article:tag" content="Go">
 <meta property="article:tag" content="Nginx">
@@ -343,157 +343,118 @@
               <div class="markdown-body">
                 
                 <p>本文档建立在Vol.1之上，还未完成Vol.1请先完成<a href="https://justimaginary.github.io/2026/03/30/Frontend-Backend-Practice-Vol-1/" target="_blank">Vol.1</a>。Vol.1文档中指出跨域问题有CORS与Nginx两种解决方案，本文档将介绍这里的Nginx反向代理解决方案。后端所用语言是Go，前端为html。本文会有概念与实操，按文档进行以获得最佳效果。</p>
-<h2 id="模块一检查服务器权限">模块一：检查服务器权限</h2>
-<p>Step1: SSH连接到服务器。</p>
-<p>Step2:
-遇到端口被占用，导致后端服务跑不起来的场景非常常见，下面以此为背景验证sudo权限。</p>
-<p>1.查询8080端口是否有程序在占用： <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-built_in">sudo</span> lsof -i :8080<br></code></pre></td></tr></table></figure>
-此时可能会要求输入密码，输入按回车即可，若遗忘联系我。</p>
+<h2 id="模块一：检查服务器权限"><a href="#模块一：检查服务器权限" class="headerlink" title="模块一：检查服务器权限"></a>模块一：检查服务器权限</h2><p>Step1:<br>SSH连接到服务器。</p>
+<p>Step2:<br>遇到端口被占用，导致后端服务跑不起来的场景非常常见，下面以此为背景验证sudo权限。</p>
+<p>1.查询8080端口是否有程序在占用：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-built_in">sudo</span> lsof -i :8080<br></code></pre></td></tr></table></figure><br>此时可能会要求输入密码，输入按回车即可，若遗忘联系我。</p>
 <p>2．查看输出</p>
-<p>若无任何输出，则代表该端口没有被占用，若存在输出，记住<code>&lt;pid&gt;</code>，运行：
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-built_in">sudo</span> <span class="hljs-built_in">kill</span> -9 &lt;pid&gt;<br></code></pre></td></tr></table></figure> 强制结束任务。</p>
-<p>若输出
-<code>student is not in the sudoers file. This incident will be reported.</code>
-表示当前用户无sudo权限，联系我。</p>
-<h2 id="模块二nginx介绍">模块二：Nginx介绍</h2>
-<p>首先需要明确的是，跨域是什么？如果不记得的话<a href="https://justimaginary.github.io/2026/03/30/Frontend-Backend-Practice-Vol-1/#CORS%E4%B8%8E%E8%B7%A8%E5%9F%9F" target="_blank">点击这里</a>，查看V哦；的介绍。</p>
+<p>若无任何输出，则代表该端口没有被占用，若存在输出，记住<code>&lt;pid&gt;</code>，运行：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-built_in">sudo</span> <span class="hljs-built_in">kill</span> -9 &lt;pid&gt;<br></code></pre></td></tr></table></figure><br>强制结束任务。</p>
+<p>若输出 <code>student is not in the sudoers file. This incident will be reported.</code> 表示当前用户无sudo权限，联系我。</p>
+<h2 id="模块二：Nginx介绍"><a href="#模块二：Nginx介绍" class="headerlink" title="模块二：Nginx介绍"></a>模块二：Nginx介绍</h2><p>首先需要明确的是，跨域是什么？如果不记得的话<a href="https://justimaginary.github.io/2026/03/30/Frontend-Backend-Practice-Vol-1/#CORS%E4%B8%8E%E8%B7%A8%E5%9F%9F" target="_blank">点击这里</a>，查看Vol.1的介绍。</p>
 <p><strong>代理：</strong> 可以简单理解为中间人。</p>
 <ul>
-<li><strong>正向代理（Forward Proxy）：</strong>
-比如使用的VPN。我们要访问海外服务器，但事实上直接连接是连不上的，所以要找个代理帮我们转发。而找的代理代表的是“我们（客户端）”。</li>
-<li><strong>反向代理（Reverse Proxy）：</strong>
-相对于正向代理是代理“我们”，反向代理就是代理“服务器”。</li>
+<li><strong>正向代理（Forward Proxy）：</strong> 比如使用的VPN。我们要访问海外服务器，但事实上直接连接是连不上的，所以要找个代理帮我们转发。而找的代理代表的是“我们（客户端）”。</li>
+<li><strong>反向代理（Reverse Proxy）：</strong> 相对于正向代理是代理“我们”，反向代理就是代理“服务器”。</li>
 </ul>
 <blockquote>
-<p><strong>举个例子：</strong> 浏览器运行在80端口，只有在直接访问 80
-端口从后端拿数据才不是跨域，反向代理就是让浏览器以为是直接访问后端拿的数据，但它根本不知道
-80 端口背后其实站着 Nginx。Nginx 收到请求后，转身在服务器内部悄悄跑去
-8080 端口找 Go 后端拿数据，再交回给浏览器。</p>
+<p><strong>举个例子：</strong><br>浏览器运行在80端口，只有在直接访问 80 端口从后端拿数据才不是跨域，反向代理就是让浏览器以为是直接访问后端拿的数据，但它根本不知道 80 端口背后其实站着 Nginx。Nginx 收到请求后，转身在服务器内部悄悄跑去 8080 端口找 Go 后端拿数据，再交回给浏览器。</p>
 </blockquote>
 <p>反向代理的基础逻辑如下，以下的端口与公网ip均只是举例：</p>
-<ol type="1">
-<li><p>我们让 Nginx 站在最前面的 80 端口（Web
-默认端口）当接待员。</p></li>
-<li><p>当在浏览器输入 <code>http://47.101.141.52/</code>
-时，请求直接发给了 Nginx。</p></li>
-<li><p>Nginx 看到是来要网页的，就去工作目录把前端文件拿给你。</p></li>
-<li><p>当在网页里点击按钮或存在后端逻辑时，前端向
-<code>http://47.101.141.52/api/...</code> 发送获取数据的请求时，Nginx
-接到请求，发现带有 <code>/api/</code> 路由 ，它就会悄悄在服务器内部敲开
-7001 包厢的门，把 Go
-后端处理好的数据拿出来，再交回给你的浏览器。</p></li>
+<ol>
+<li><p>我们让 Nginx 站在最前面的 80 端口（Web 默认端口）当接待员。</p>
+</li>
+<li><p>当在浏览器输入 <code>http://47.101.141.52/</code> 时，请求直接发给了 Nginx。</p>
+</li>
+<li><p>Nginx 看到是来要网页的，就去工作目录把前端文件拿给你。</p>
+</li>
+<li><p>当在网页里点击按钮或存在后端逻辑时，前端向 <code>http://47.101.141.52/api/...</code> 发送获取数据的请求时，Nginx 接到请求，发现带有 <code>/api/</code> 路由 ，它就会悄悄在服务器内部敲开 7001 包厢的门，把 Go 后端处理好的数据拿出来，再交回给你的浏览器。</p>
+</li>
 </ol>
 <p>以下进入实操。</p>
-<h2 id="模块三端口占用">模块三：端口占用</h2>
-<p>在思考跨域这个问题，最开始肯定会想到，既然有严格的跨域限制，那为什么不能让前后端运行在同一个端口上呢，为什么要费尽心思来处理跨域问题，为了探讨这个问题，我们来做一个实验。</p>
-<p>Step1: 使用python自带的简易前端模拟前端启动。</p>
-<p>目前服务器公网IP <code>47.101.141.52</code>的默认80
-端口运行着一个独立服务，不要去动它，这个服务的后端运行在7001端口，那我们现在尝试使用python在7001端口创建进程。</p>
+<h2 id="模块三：端口占用"><a href="#模块三：端口占用" class="headerlink" title="模块三：端口占用"></a>模块三：端口占用</h2><p>在思考跨域这个问题，最开始肯定会想到，既然有严格的跨域限制，那为什么不能让前后端运行在同一个端口上呢，为什么要费尽心思来处理跨域问题，为了探讨这个问题，我们来做一个实验。</p>
+<p>Step1:<br>使用python自带的简易前端模拟前端启动。</p>
+<p>目前服务器公网IP <code>47.101.141.52</code>的默认80 端口运行着一个独立服务，不要去动它，这个服务的后端运行在7001端口，那我们现在尝试使用python在7001端口创建进程。</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-built_in">sudo</span> python3 -m http.server 7001<br></code></pre></td></tr></table></figure>
 <p>观察输出。</p>
 <details>
-<summary>
-<strong>点击查看输出结果与原理解析</strong>
-</summary>
-<p>会出现： <code>OSError: [Errno 98] Address already in use</code></p>
-<p>这说明同一个端口是不能同时运行前后端的，为什么会这样呢？</p>
-<p>打个比方，服务器是一栋大楼，端口号就是大楼里的房间号。一台服务器（一个
-IP）可以同时运行很多程序，端口用来区分这些不同的服务
-。但是，一个端口只能运行一个程序。此时某个后端已经把 7001
-房间的门反锁了，前端服务根本进不去。</p>
-<p>这个时候我们可以验证一下： <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-built_in">sudo</span> lsof -i :7001<br></code></pre></td></tr></table></figure>
-查看输出，绝对不允许kill这个任务！</p>
-<p>既然物理上不能住在同一个房间，前端和后端就必须运行在不同的端口。而一旦运行在不同的端口，浏览器就会触发同源策略，拦截数据的交互。这就形成了一个死结。为了解开这个死结，我们需要引入
-Nginx 。</p>
+<summary><strong>点击查看输出结果与原理解析</strong></summary>
+
+会出现：
+`OSError: [Errno 98] Address already in use`
+
+这说明同一个端口是不能同时运行前后端的，为什么会这样呢？
+
+打个比方，服务器是一栋大楼，端口号就是大楼里的房间号。一台服务器（一个 IP）可以同时运行很多程序，端口用来区分这些不同的服务 。但是，一个端口只能运行一个程序。此时某个后端已经把 7001 房间的门反锁了，前端服务根本进不去。
+
+这个时候我们可以验证一下：
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-built_in">sudo</span> lsof -i :7001<br></code></pre></td></tr></table></figure>
+查看输出，绝对不允许kill这个任务！
+
+既然物理上不能住在同一个房间，前端和后端就必须运行在不同的端口。而一旦运行在不同的端口，浏览器就会触发同源策略，拦截数据的交互。这就形成了一个死结。为了解开这个死结，我们需要引入 Nginx 。
+
 </details>
-<p><br>
-接下来的模块示例均以Vol.1中的<a href="https://justimaginary.github.io/2026/03/30/Frontend-Backend-Practice-Vol-1/#%E6%A8%A1%E5%9D%97%E4%BA%94%EF%BC%9A%E5%89%8D%E5%90%8E%E7%AB%AF%E4%BA%A4%E4%BA%92%E5%AE%9E%E4%BE%8B2" target="_blank">前后端交互实例2</a>为例说明。</p>
-<h2 id="模块四前后端代码配置">模块四：前后端代码配置</h2>
-<p>Step1: 建议目录结构 <figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs text">go-demo1/<br>├── main.go<br>└── index.html<br></code></pre></td></tr></table></figure></p>
-<p>Step2:
-前后端代码请参见Vol.1中的对应篇章，<a href="https://justimaginary.github.io/2026/03/30/Frontend-Backend-Practice-Vol-1/#%E6%A8%A1%E5%9D%97%E4%BA%94%EF%BC%9A%E5%89%8D%E5%90%8E%E7%AB%AF%E4%BA%A4%E4%BA%92%E5%AE%9E%E4%BE%8B2" target="_blank">点击这里回顾</a>。</p>
+
+<p><br><br>接下来的模块示例均以Vol.1中的<a href="https://justimaginary.github.io/2026/03/30/Frontend-Backend-Practice-Vol-1/#%E6%A8%A1%E5%9D%97%E4%BA%94%EF%BC%9A%E5%89%8D%E5%90%8E%E7%AB%AF%E4%BA%A4%E4%BA%92%E5%AE%9E%E4%BE%8B2" target="_blank">前后端交互实例2</a>为例说明。</p>
+<h2 id="模块四：前后端代码配置"><a href="#模块四：前后端代码配置" class="headerlink" title="模块四：前后端代码配置"></a>模块四：前后端代码配置</h2><p>Step1:<br>建议目录结构<br><figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs text">go-demo1/<br>├── main.go<br>└── index.html<br></code></pre></td></tr></table></figure></p>
+<p>Step2:<br>前后端代码请参见Vol.1中的对应篇章，<a href="https://justimaginary.github.io/2026/03/30/Frontend-Backend-Practice-Vol-1/#%E6%A8%A1%E5%9D%97%E4%BA%94%EF%BC%9A%E5%89%8D%E5%90%8E%E7%AB%AF%E4%BA%A4%E4%BA%92%E5%AE%9E%E4%BE%8B2" target="_blank">点击这里回顾</a>。</p>
 <p>Step3:</p>
 <p>如果完整的看完了Vol.1，会发现我们需要修改代码。因为Vol.1中我们解决跨域的方法是使用CORS，现在我们改用Nginx，所以我们要对函数进行更改。</p>
 <figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">handleRequest</span><span class="hljs-params">(w http.ResponseWriter, r *http.Request)</span></span> &#123;<br>    fmt.Printf(<span class="hljs-string">&quot;收到来自 %s 的请求！\n&quot;</span>, r.RemoteAddr) <br>    <br>    <span class="hljs-comment">// 注释掉这三行代码，去除CORS</span><br>    <span class="hljs-comment">// w.Header().Set(&quot;Access-Control-Allow-Origin&quot;, &quot;*&quot;)</span><br>    <span class="hljs-comment">// w.Header().Set(&quot;Access-Control-Allow-Headers&quot;, &quot;Content-Type&quot;)</span><br>    <span class="hljs-comment">// w.Header().Set(&quot;Access-Control-Allow-Methods&quot;, &quot;POST, GET, OPTIONS&quot;)</span><br><br>    <span class="hljs-comment">// 后续代码不变</span><br></code></pre></td></tr></table></figure>
-<p>Step4: 根据前文连接服务器上传文件的方法，将main.go上传至服务器。</p>
-<h2 id="模块五nginx配置">模块五：Nginx配置</h2>
-<p>服务器已经安装好Nginx，运行以下命令查看Nginx状态。 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">systemctl status nginx<br></code></pre></td></tr></table></figure>
-若出现 <code>Active: active (running)</code>，则Nginx正在正常运行。</p>
-<p>Step1: 建议目录结构 <figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs text">zhy/go-demo1/<br>├── main.go<br>└── index.html<br></code></pre></td></tr></table></figure></p>
-<p>Step2: 查看Nginx配置文件。</p>
-<p>Nginx使用配置文件运行，要在配置文件定义端口转发。这里我们使用vim编辑，当然也可以使用VS
-code编辑配置文件，配置文件位于服务器 <code>/www/server/nginx/conf</code>
-下。</p>
+<p>Step4:<br>根据前文连接服务器上传文件的方法，将main.go上传至服务器。</p>
+<h2 id="模块五：Nginx配置"><a href="#模块五：Nginx配置" class="headerlink" title="模块五：Nginx配置"></a>模块五：Nginx配置</h2><p>服务器已经安装好Nginx，运行以下命令查看Nginx状态。<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">systemctl status nginx<br></code></pre></td></tr></table></figure><br>若出现 <code>Active: active (running)</code>，则Nginx正在正常运行。</p>
+<p>Step1:<br>建议目录结构<br><figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs text">zhy/go-demo1/<br>├── main.go<br>└── index.html<br></code></pre></td></tr></table></figure></p>
+<p>Step2:<br>查看Nginx配置文件。</p>
+<p>Nginx使用配置文件运行，要在配置文件定义端口转发。这里我们使用vim编辑，当然也可以使用VS code编辑配置文件，配置文件位于服务器 <code>/www/server/nginx/conf</code> 下。</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-built_in">sudo</span> vim /www/server/nginx/conf/nginx.conf<br></code></pre></td></tr></table></figure>
 <p>此时会出现文件编辑页面，使用箭头移动光标，找到：</p>
 <figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><code class="hljs nginx"><span class="hljs-section">server</span><br>    &#123;<br>        <span class="hljs-attribute">listen</span> <span class="hljs-number">888</span>;<br>        <span class="hljs-attribute">server_name</span> phpmyadmin;<br>        <span class="hljs-attribute">index</span> index.html index.htm index.php;<br>        <span class="hljs-attribute">root</span>  /www/server/phpmyadmin;<br><br>        <span class="hljs-comment">#error_page   404   /404.html;</span><br>        <span class="hljs-attribute">include</span> enable-php.conf;<br><br>        <span class="hljs-section">location</span> <span class="hljs-regexp">~ .*\.(gif|jpg|jpeg|png|bmp|swf)$</span><br>        &#123;<br>            <span class="hljs-attribute">expires</span>      <span class="hljs-number">30d</span>;<br>        &#125;<br><br>        <span class="hljs-section">location</span> <span class="hljs-regexp">~ .*\.(js|css)?$</span><br>        &#123;<br>            <span class="hljs-attribute">expires</span>      <span class="hljs-number">12h</span>;<br>        &#125;<br><br>        <span class="hljs-section">location</span> <span class="hljs-regexp">~ /\.</span><br>        &#123;<br>            <span class="hljs-attribute">deny</span> all;<br>        &#125;<br><br>        <span class="hljs-attribute">access_log</span>  /www/wwwlogs/access.log;<br>    &#125;<br></code></pre></td></tr></table></figure>
-<p>这是Nginx的默认配置，我们发现此时Nginx转发了888端口，我们在浏览器打开
-<a href="http://47.101.141.52:888/" target="_blank"><code>http://47.101.141.52:888/</code></a>
-，会看到浏览器显示404 NOT
-FOUND，Nginx。接下来我们将修改这个默认配置，使其适应我们在Vol.1做的go-demo1。</p>
-<p>Step3: 使用vim修改nginx.conf，以下给出vim的简易操作指南。</p>
+<p>这是Nginx的默认配置，我们发现此时Nginx转发了888端口，我们在浏览器打开 <a href="http://47.101.141.52:888/" target="_blank"><code>http://47.101.141.52:888/</code></a> ，会看到浏览器显示404 NOT FOUND，Nginx。接下来我们将修改这个默认配置，使其适应我们在Vol.1做的go-demo1。</p>
+<p>Step3:<br>使用vim修改nginx.conf，以下给出vim的简易操作指南。</p>
 <ul>
-<li>vim分为<strong>普通模式</strong>与<strong>插入模式</strong>，进入文件默认以<strong>普通模式</strong>进入，按
-<code>i</code>
-切换至插入模式，插入模式下就是正常文件编辑器，只能使用键盘完成，按
-<code>esc</code> 切回普通模式。</li>
-<li>在<strong>普通模式</strong>下，按 <code>i</code>
-切换至插入模式，在光标当前位置插入文本。</li>
-<li>在<strong>普通模式</strong>下，输入 <code>:wq</code>
-为保存并推出，<code>:q!</code>
-强制退出但不保存。（输入完后要按回车，冒号不要忘了）</li>
-<li>在<strong>普通模式</strong>下，按 <code>u</code>
-为撤销上一步，<code>ctrl+r</code> 为重做。</li>
-<li>在<strong>普通模式</strong>下，按 <code>x</code> 为删除当前文本，按
-<code>dd</code> 为删除一整行，按
-<code>ndd</code>（将n替换为具体数字，例如3dd）为删除光标向下数的n行。</li>
-<li>在<strong>普通模式</strong>下，按 <code>yy</code>
-复制光标当前一行，按 <code>p</code> 复制在光标的下一行。</li>
-<li>在<strong>普通模式</strong>下，使用箭头或 <code>hjkl</code>
-移动光标。</li>
+<li>vim分为<strong>普通模式</strong>与<strong>插入模式</strong>，进入文件默认以<strong>普通模式</strong>进入，按 <code>i</code> 切换至插入模式，插入模式下就是正常文件编辑器，只能使用键盘完成，按 <code>esc</code> 切回普通模式。</li>
+<li>在<strong>普通模式</strong>下，按 <code>i</code> 切换至插入模式，在光标当前位置插入文本。</li>
+<li>在<strong>普通模式</strong>下，输入 <code>:wq</code> 为保存并推出，<code>:q!</code> 强制退出但不保存。（输入完后要按回车，冒号不要忘了）</li>
+<li>在<strong>普通模式</strong>下，按 <code>u</code> 为撤销上一步，<code>ctrl+r</code> 为重做。</li>
+<li>在<strong>普通模式</strong>下，按 <code>x</code> 为删除当前文本，按 <code>dd</code> 为删除一整行，按 <code>ndd</code>（将n替换为具体数字，例如3dd）为删除光标向下数的n行。</li>
+<li>在<strong>普通模式</strong>下，按 <code>yy</code> 复制光标当前一行，按 <code>p</code> 复制在光标的下一行。</li>
+<li>在<strong>普通模式</strong>下，使用箭头或 <code>hjkl</code> 移动光标。</li>
 </ul>
 <p>将以下内容修改</p>
 <figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs nginx"><span class="hljs-attribute">listen</span> <span class="hljs-number">888</span>;<br><span class="hljs-attribute">server_name</span> phpmyadmin;<br><span class="hljs-attribute">index</span> index.html index.htm index.php;<br><span class="hljs-attribute">root</span>  /www/server/phpmyadmin;<br><br><span class="hljs-comment">#error_page   404   /404.html;</span><br><span class="hljs-attribute">include</span> enable-php.conf;<br></code></pre></td></tr></table></figure>
 <p>为：</p>
 <figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs nginx"><span class="hljs-attribute">listen</span> <span class="hljs-number">888</span>; <br><span class="hljs-attribute">server_name</span> goDemo1; <br><span class="hljs-comment"># 1. 托管前端：把根目录指向你的前端文件夹 </span><br><span class="hljs-attribute">root</span> /home/zhy/go-demo1; <br><span class="hljs-attribute">index</span> index.html index.htm; <br><br><span class="hljs-comment"># 2. 反向代理：把发往 /api/ 的请求，偷偷转交给 8080 端口的 Go 后端 </span><br><span class="hljs-section">location</span> /api/ &#123; <br>    <span class="hljs-attribute">proxy_pass</span> [http://127.0.0.1:8080](http://127.0.0.1:8080);<br>&#125;<br></code></pre></td></tr></table></figure>
-<p>修改完成后按<code>esc</code>回到普通模式，输入 <code>:wq</code>
-后回车，保存并退出。</p>
-<p>Step4: 测试并重启Nginx。</p>
+<p>修改完成后按<code>esc</code>回到普通模式，输入 <code>:wq</code> 后回车，保存并退出。</p>
+<p>Step4:<br>测试并重启Nginx。</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-built_in">sudo</span> nginx -t<br></code></pre></td></tr></table></figure>
-<p>如果看到 <code>syntax is ok</code> 和 <code>test is successful</code>
-的字样，说明配置非常正确，接着，让 Nginx 重新加载最新配置：</p>
+<p>如果看到 <code>syntax is ok</code> 和 <code>test is successful</code> 的字样，说明配置非常正确，接着，让 Nginx 重新加载最新配置：</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-built_in">sudo</span> nginx -s reload<br></code></pre></td></tr></table></figure>
 <p>Step5:</p>
 <p>这个时候我们需要修改前端代码，因为前端此时和后端是通过Nginx代理同源访问的，但他不知道在8080端口存在着一个后端服务，他只知道在当前端口（888），直接就能拿到数据。</p>
 <p>以下这句话需要修改，自行思考如何修改。</p>
 <figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs javascript"><span class="hljs-keyword">const</span> url = <span class="hljs-string">`http://<span class="hljs-subst">$&#123;SERVER_IP&#125;</span>:8080/api/hello`</span>;<br></code></pre></td></tr></table></figure>
 <details>
-<summary>
-<strong>点击查看修改指导</strong>
-</summary>
-<p>修改为： <figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs javascript"><span class="hljs-keyword">const</span> url = <span class="hljs-string">`http://<span class="hljs-subst">$&#123;SERVER_IP&#125;</span>:888/api/hello`</span>;<br></code></pre></td></tr></table></figure></p>
+<summary><strong>点击查看修改指导</strong></summary>
+
+修改为：
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs javascript"><span class="hljs-keyword">const</span> url = <span class="hljs-string">`http://<span class="hljs-subst">$&#123;SERVER_IP&#125;</span>:888/api/hello`</span>;<br></code></pre></td></tr></table></figure>
+
 </details>
+
 <p><br></p>
 <p>以上，Nginx转发与前后端全部配置完成。</p>
-<p>Step6: 打开服务器终端（bash） 启动后端服务</p>
+<p>Step6:<br>打开服务器终端（bash）<br>启动后端服务</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">go run main.go<br></code></pre></td></tr></table></figure>
 <p>（此时任务还在进行，不要关闭终端。当测试结束后，输入ctrl+c，结束进程）</p>
-<p>访问
-<a href="http://47.101.141.52:888/" target="_blank"><code>http://47.101.141.52:888/</code></a>
-，查看使用Nginx代理部署到服务器上，属于你的第一个网站！</p>
+<p>访问  <a href="http://47.101.141.52:888/" target="_blank"><code>http://47.101.141.52:888/</code></a> ，查看使用Nginx代理部署到服务器上，属于你的第一个网站！</p>
 <p><br></p>
-<p>但这个时候，可能会出现问题，比如浏览器会显示
-<code>403 Forbidden</code>。这是一个很常见的问题，我们回顾Nginx的配置文件，整个文件的第一句话是：</p>
+<p>但这个时候，可能会出现问题，比如浏览器会显示 <code>403 Forbidden</code>。这是一个很常见的问题，我们回顾Nginx的配置文件，整个文件的第一句话是：</p>
 <figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs nginx"><span class="hljs-attribute">user</span>  www www;<br></code></pre></td></tr></table></figure>
-<p>这句话的意思是Nginx只拥有www权限，也就是普通用户权限，而你的文件夹
-<code>/home/zhy/</code> 拒绝了www用户的访问，所以我们要为
-<code>/home/zhy/</code> 赋予执行权限。</p>
+<p>这句话的意思是Nginx只拥有www权限，也就是普通用户权限，而你的文件夹 <code>/home/zhy/</code> 拒绝了www用户的访问，所以我们要为 <code>/home/zhy/</code> 赋予执行权限。</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-built_in">chmod</span> 755 /home/zhy<br></code></pre></td></tr></table></figure>
 <p>并且让www用户拥有访问文件夹下文件的只读的权限。</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-built_in">chmod</span> -R 755 /home/zhy/go-demo1<br></code></pre></td></tr></table></figure>
 <p>刷新网站，403即会消失！</p>
 <p>祝贺你掌握了现代Web技术中最核心的内容。</p>
-<hr />
+<hr>
 <p>END</p>
 
                 
