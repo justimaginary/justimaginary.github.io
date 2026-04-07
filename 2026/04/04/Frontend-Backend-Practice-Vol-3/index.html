@@ -342,178 +342,90 @@
             
               <div class="markdown-body">
                 
-                <p>本文档建立在 Vol.1 与 Vol.2
-之上，还未完成前序内容的请先完成<a href="https://justimaginary.github.io/2026/03/30/Frontend-Backend-Practice-Vol-1/" target="_blank">Vol.1</a>与<a href="https://justimaginary.github.io/2026/04/03/Frontend-Backend-Practice-Vol-2/" target="_blank">Vol.2</a>
-前序教程。</p>
-<p>在 Vol.1 中，我们使用的是 Go 原生 <code>http</code>
-完成的后端服务，但如果在工程中继续使用原生
-<code>http</code>，会让代码变成“屎山”，后期维护也非常不便，于是我们引入了
-Web 框架。本文档将介绍 Go 语言中最著名的 Web
-框架解决方案——<strong>Gin</strong>。本文会有概念与实操，按文档进行以获得最佳效果。</p>
-<h2 id="模块一框架介绍">模块一：框架介绍</h2>
-<p><strong>首先需要明确：什么是框架？</strong></p>
+                <p>本文档建立在 Vol.1 与 Vol.2 之上，还未完成前序内容的请先完成<a href="https://justimaginary.github.io/2026/03/30/Frontend-Backend-Practice-Vol-1/" target="_blank">Vol.1</a>与<a href="https://justimaginary.github.io/2026/04/03/Frontend-Backend-Practice-Vol-2/" target="_blank">Vol.2</a> 前序教程。</p>
+<p>在 Vol.1 中，我们使用的是 Go 原生 <code>http</code> 完成的后端服务，但如果在工程中继续使用原生 <code>http</code>，会让代码变成“屎山”，后期维护也非常不便，于是我们引入了 Web 框架。本文档将介绍 Go 语言中最著名的 Web 框架解决方案——<strong>Gin</strong>。本文会有概念与实操，按文档进行以获得最佳效果。</p>
+<h2 id="模块一：框架介绍"><a href="#模块一：框架介绍" class="headerlink" title="模块一：框架介绍"></a>模块一：框架介绍</h2><p><strong>首先需要明确：什么是框架？</strong></p>
 <p>这里举一个盖房子的例子来理解：</p>
 <ul>
-<li><strong>原生开发（不使用框架，如 Vol.1 使用的 Go 原生
-http）：</strong>
-需要自己砍树锯木板、自己调配水泥。虽然对房子里的每一个细节都有绝对的控制权和极高的自由度，但等房子盖好不知道会到什么时候。</li>
-<li><strong>使用框架：</strong> 框架就像是“全屋定制 +
-预制板”。地基、承重墙、水电管道都已经由其他工程师提前造好了。我们只需要决定“这里放个沙发”、“那里开一扇窗”，几天就能拎包入住。这不可否认的牺牲了一些自由度，但这是开发效率与主流需求的完美平衡点。</li>
+<li><strong>原生开发（不使用框架，如 Vol.1 使用的 Go 原生 http）：</strong> 需要自己砍树锯木板、自己调配水泥。虽然对房子里的每一个细节都有绝对的控制权和极高的自由度，但等房子盖好不知道会到什么时候。</li>
+<li><strong>使用框架：</strong> 框架就像是“全屋定制 + 预制板”。地基、承重墙、水电管道都已经由其他工程师提前造好了。我们只需要决定“这里放个沙发”、“那里开一扇窗”，几天就能拎包入住。这不可否认的牺牲了一些自由度，但这是开发效率与主流需求的完美平衡点。</li>
 </ul>
 <p><strong>业界主流框架一览：</strong></p>
 <ul>
-<li><strong>Java 的 Spring 框架：</strong>
-业界曾经绝对的使用巨头。它几乎提供了企业级开发需要的一切（数据库操作、安全鉴权、微服务），极其强大但也极其庞大，学习曲线十分陡峭。但随着
-Go 语言的发展，除了拥有 Java 背景的公司，几乎都在转型拥抱 Go。</li>
-<li><strong>Go 的 Gin 框架：</strong> 它是一个轻量级的 Web
-框架，专门用来快速搭建 API 接口。它屏蔽了原生 <code>net/http</code>
-的繁琐细节，所以能用极少的代码完成极高的性能。并且 Go
-语言原生的高并发特性，使得其具有极高的开发价值。</li>
+<li><strong>Java 的 Spring 框架：</strong> 业界曾经绝对的使用巨头。它几乎提供了企业级开发需要的一切（数据库操作、安全鉴权、微服务），极其强大但也极其庞大，学习曲线十分陡峭。但随着 Go 语言的发展，除了拥有 Java 背景的公司，几乎都在转型拥抱 Go。</li>
+<li><strong>Go 的 Gin 框架：</strong> 它是一个轻量级的 Web 框架，专门用来快速搭建 API 接口。它屏蔽了原生 <code>net/http</code> 的繁琐细节，所以能用极少的代码完成极高的性能。并且 Go 语言原生的高并发特性，使得其具有极高的开发价值。</li>
 </ul>
-<h2 id="模块二go语言简介">模块二：Go语言简介</h2>
-<p>Go 语言（Golang）是由 Google 开发的。业界对它的评价是： <strong>“拥有
-C 的运行性能，同时拥有 Python 的开发效率。”</strong> 但在初学时，拥有
-C++ 基础的程序员通常会感叹于 Go 编译器的严苛。</p>
+<h2 id="模块二：Go语言简介"><a href="#模块二：Go语言简介" class="headerlink" title="模块二：Go语言简介"></a>模块二：Go语言简介</h2><p>Go 语言（Golang）是由 Google 开发的。业界对它的评价是： <strong>“拥有 C 的运行性能，同时拥有 Python 的开发效率。”</strong> 但在初学时，拥有 C++ 基础的程序员通常会感叹于 Go 编译器的严苛。</p>
 <p>以下简要介绍Go语言特性：</p>
-<h3 id="格式严格">1. 格式严格</h3>
-<p>比如大括号不能随便换行，在 C++
-里，可以随心所欲地排版代码，编译器根本不在意： <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-comment">// C++ 随便写，编译器不在乎代码格式是怎么样的</span><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span> </span><br><span class="hljs-function"></span>&#123;<br>    <span class="hljs-keyword">if</span> (<span class="hljs-literal">true</span>) &#123; std::cout &lt;&lt; <span class="hljs-string">&quot;Yes&quot;</span>; &#125;<br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure> 但在 Go
-里，如果把左大括号 <code>{</code> 换到下一行，编译器会直接报错。</p>
-<p>Go 编译器强制所有的 Go
-程序员使用同一种代码风格，这对工程开发带来了方便代码审查等诸多好处。
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-comment">// Go 语言的正确写法（大括号必须同行）</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span> &#123;<br>    <span class="hljs-keyword">if</span> <span class="hljs-literal">true</span> &#123;<br>        fmt.Println(<span class="hljs-string">&quot;Yes&quot;</span>)<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure></p>
-<h3 id="不允许定义无用的变量和包">2. 不允许定义无用的变量和包</h3>
-<p>在 C++ 或 Python 中，若定义了一个变量不用，或者 import
-了一个库不用，顶多弹个警告（Warning），程序照样可以运行。但是 Go
-的编译器是严苛的。只要导入了没有使用的包，或者定义了没有使用的变量，编译器会直接拒绝编译。这也倒逼了编写
-Go 代码时必须拥有极好的代码习惯。 <figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-keyword">package</span> main<br><br><span class="hljs-keyword">import</span> <span class="hljs-string">&quot;fmt&quot;</span> <span class="hljs-comment">// 如果导入了 fmt 但下面没有调用，直接编译失败：imported and not used</span><br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span> &#123;<br>    a := <span class="hljs-number">10</span> <span class="hljs-comment">// 声明了 a 但没使用，直接报错：a declared but not used</span><br>&#125;<br></code></pre></td></tr></table></figure></p>
-<h3 id="类型推导-语法">3. 类型推导 (<code>:=</code> 语法)</h3>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-comment">// C++ 写法</span><br><span class="hljs-type">int</span> a = <span class="hljs-number">10</span>; 或 <span class="hljs-keyword">auto</span> a = <span class="hljs-number">10</span>;<br></code></pre></td></tr></table></figure>
+<h3 id="1-格式严格"><a href="#1-格式严格" class="headerlink" title="1. 格式严格"></a>1. 格式严格</h3><p>比如大括号不能随便换行，在 C++ 里，可以随心所欲地排版代码，编译器根本不在意：<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-comment">// C++ 随便写，编译器不在乎代码格式是怎么样的</span><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span> </span><br><span class="hljs-function"></span>&#123;<br>    <span class="hljs-keyword">if</span> (<span class="hljs-literal">true</span>) &#123; std::cout &lt;&lt; <span class="hljs-string">&quot;Yes&quot;</span>; &#125;<br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure><br>但在 Go 里，如果把左大括号 <code>{</code> 换到下一行，编译器会直接报错。</p>
+<p>Go 编译器强制所有的 Go 程序员使用同一种代码风格，这对工程开发带来了方便代码审查等诸多好处。<br><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-comment">// Go 语言的正确写法（大括号必须同行）</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span> &#123;<br>    <span class="hljs-keyword">if</span> <span class="hljs-literal">true</span> &#123;<br>        fmt.Println(<span class="hljs-string">&quot;Yes&quot;</span>)<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure></p>
+<h3 id="2-不允许定义无用的变量和包"><a href="#2-不允许定义无用的变量和包" class="headerlink" title="2. 不允许定义无用的变量和包"></a>2. 不允许定义无用的变量和包</h3><p>在 C++ 或 Python 中，若定义了一个变量不用，或者 import 了一个库不用，顶多弹个警告（Warning），程序照样可以运行。但是 Go 的编译器是严苛的。只要导入了没有使用的包，或者定义了没有使用的变量，编译器会直接拒绝编译。这也倒逼了编写 Go 代码时必须拥有极好的代码习惯。<br><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-keyword">package</span> main<br><br><span class="hljs-keyword">import</span> <span class="hljs-string">&quot;fmt&quot;</span> <span class="hljs-comment">// 如果导入了 fmt 但下面没有调用，直接编译失败：imported and not used</span><br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span> &#123;<br>    a := <span class="hljs-number">10</span> <span class="hljs-comment">// 声明了 a 但没使用，直接报错：a declared but not used</span><br>&#125;<br></code></pre></td></tr></table></figure></p>
+<h3 id="3-类型推导-语法"><a href="#3-类型推导-语法" class="headerlink" title="3. 类型推导 (:= 语法)"></a>3. 类型推导 (<code>:=</code> 语法)</h3><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-comment">// C++ 写法</span><br><span class="hljs-type">int</span> a = <span class="hljs-number">10</span>; 或 <span class="hljs-keyword">auto</span> a = <span class="hljs-number">10</span>;<br></code></pre></td></tr></table></figure>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-comment"># Python 写法</span><br>a = <span class="hljs-number">10</span><br></code></pre></td></tr></table></figure>
-<p>Go 结合了前两者的优点，使用 <code>:=</code> 自动推导类型：
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-comment">// 不需要写 var a int = 10，但使用 var 定义依然为标准语法</span><br>a := <span class="hljs-number">10</span>       <span class="hljs-comment">// 编译器会自动推导出 a 是 int</span><br>name := <span class="hljs-string">&quot;张三&quot;</span> <span class="hljs-comment">// 自动推导出 name 是 string</span><br></code></pre></td></tr></table></figure></p>
-<h3 id="面向对象用大小写代替-publicprivate">4. 面向对象：用“大小写”代替
-Public/Private</h3>
-<p>在 C++ 里，我们用 <code>public:</code> 和 <code>private:</code>
-来控制类成员是否可以被外部访问。Go
-语言去掉了这两个关键字，采用了极简规则：<strong>首字母大写就是
-Public，首字母小写就是 Private。</strong> <figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-keyword">type</span> Student <span class="hljs-keyword">struct</span> &#123;<br>    Name <span class="hljs-type">string</span> <span class="hljs-comment">// 首字母大写，外部包和 JSON 转换都能看到它，public</span><br>    age  <span class="hljs-type">int</span>    <span class="hljs-comment">// 首字母小写，是私有属性，private</span><br>&#125;<br></code></pre></td></tr></table></figure></p>
-<h2 id="模块三go的包管理">模块三：Go的包管理</h2>
-<p>某些服务是 Go 原生的，安装环境时就存在于系统了（例如
-<code>net/http</code> 标准库），此时只需要内部代码 <code>import</code>
-就好。但有些包并不是原生的（比如 Gin 框架），需要对应下载。</p>
-<p>如果现在想要下载Gin框架，直接在一个空文件夹（或只含有go程序文件）下直接运行
-<code>go get -u github.com/gin-gonic/gin</code>，通常会报错
-<code>go: go.mod file not found in current directory</code>。要想引入外部框架，必须经过以下极其规范的流程：</p>
-<p>我们借用 Vol.1
-中的<a href="https://justimaginary.github.io/2026/03/30/Frontend-Backend-Practice-Vol-1/#%E6%A8%A1%E5%9D%97%E4%BA%94%EF%BC%9A%E5%89%8D%E5%90%8E%E7%AB%AF%E4%BA%A4%E4%BA%92%E5%AE%9E%E4%BE%8B2" target="_blank">前后端交互实例
-2</a>为例说明。</p>
-<p><br> Step1: 建议目录结构： <figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs text">go-demo1/<br>├── main.go<br>└── index.html<br></code></pre></td></tr></table></figure></p>
-<p>Step2: 控制台中进入 <code>go-demo1</code> 文件夹。</p>
-<p>Step3: 初始化项目，这里的 <code>gin-demo</code>
-是项目名称，随意起就好。 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">go mod init gin-demo<br></code></pre></td></tr></table></figure> <code>go mod init</code>
-会在文件夹内生成一个 <code>go.mod</code>
-文件，之后导入的所有第三方库都会记录在这个文件中。</p>
-<p>Step4: 只有项目被初始化了，才可以下载 Gin 框架： <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">go get -u github.com/gin-gonic/gin<br></code></pre></td></tr></table></figure>
-此时，Go 会去网络上把 Gin 框架的代码拉取下来，并自动更新
-<code>go.mod</code> 文件。还会生成一个 <code>go.sum</code>
-文件（用来校验下载的包有没有被他人篡改，保证安全）。</p>
-<p>Step5:
-在写代码的过程中，可能会引入了一些包，后来又不需要删掉了。为了保持
-<code>go.mod</code>
-的干净，我们经常使用这个命令自动整理依赖（没用的删掉，缺少的下载）：
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">go mod tidy<br></code></pre></td></tr></table></figure></p>
-<h2 id="模块四go的编译流程">模块四：Go的编译流程</h2>
-<p>代码编写完毕后，Go 语言提供两种运行方式：</p>
-<h3 id="开发时运行-不生成实体文件">1. 开发时运行 (不生成实体文件)</h3>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">go run main.go<br></code></pre></td></tr></table></figure>
+<p>Go 结合了前两者的优点，使用 <code>:=</code> 自动推导类型：<br><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-comment">// 不需要写 var a int = 10，但使用 var 定义依然为标准语法</span><br>a := <span class="hljs-number">10</span>       <span class="hljs-comment">// 编译器会自动推导出 a 是 int</span><br>name := <span class="hljs-string">&quot;张三&quot;</span> <span class="hljs-comment">// 自动推导出 name 是 string</span><br></code></pre></td></tr></table></figure></p>
+<h3 id="4-面向对象：用“大小写”代替-Public-Private"><a href="#4-面向对象：用“大小写”代替-Public-Private" class="headerlink" title="4. 面向对象：用“大小写”代替 Public/Private"></a>4. 面向对象：用“大小写”代替 Public/Private</h3><p>在 C++ 里，我们用 <code>public:</code> 和 <code>private:</code> 来控制类成员是否可以被外部访问。Go 语言去掉了这两个关键字，采用了极简规则：<strong>首字母大写就是 Public，首字母小写就是 Private。</strong><br><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-keyword">type</span> Student <span class="hljs-keyword">struct</span> &#123;<br>    Name <span class="hljs-type">string</span> <span class="hljs-comment">// 首字母大写，外部包和 JSON 转换都能看到它，public</span><br>    age  <span class="hljs-type">int</span>    <span class="hljs-comment">// 首字母小写，是私有属性，private</span><br>&#125;<br></code></pre></td></tr></table></figure></p>
+<h2 id="模块三：Go的包管理"><a href="#模块三：Go的包管理" class="headerlink" title="模块三：Go的包管理"></a>模块三：Go的包管理</h2><p>某些服务是 Go 原生的，安装环境时就存在于系统了（例如 <code>net/http</code> 标准库），此时只需要内部代码 <code>import</code> 就好。但有些包并不是原生的（比如 Gin 框架），需要对应下载。</p>
+<p>如果现在想要下载Gin框架，直接在一个空文件夹（或只含有go程序文件）下直接运行 <code>go get -u github.com/gin-gonic/gin</code>，通常会报错 <code>go: go.mod file not found in current directory</code>。要想引入外部框架，必须经过以下极其规范的流程：</p>
+<p>我们借用 Vol.1 中的<a href="https://justimaginary.github.io/2026/03/30/Frontend-Backend-Practice-Vol-1/#%E6%A8%A1%E5%9D%97%E4%BA%94%EF%BC%9A%E5%89%8D%E5%90%8E%E7%AB%AF%E4%BA%A4%E4%BA%92%E5%AE%9E%E4%BE%8B2" target="_blank">前后端交互实例 2</a>为例说明。</p>
+<p><br><br>Step1:<br>建议目录结构：<br><figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs text">go-demo1/<br>├── main.go<br>└── index.html<br></code></pre></td></tr></table></figure></p>
+<p>Step2:<br>控制台中进入 <code>go-demo1</code> 文件夹。</p>
+<p>Step3:<br>初始化项目，这里的 <code>gin-demo</code> 是项目名称，随意起就好。<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">go mod init gin-demo<br></code></pre></td></tr></table></figure><br><code>go mod init</code> 会在文件夹内生成一个 <code>go.mod</code> 文件，之后导入的所有第三方库都会记录在这个文件中。</p>
+<p>Step4:<br>只有项目被初始化了，才可以下载 Gin 框架：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">go get -u github.com/gin-gonic/gin<br></code></pre></td></tr></table></figure><br>此时，Go 会去网络上把 Gin 框架的代码拉取下来，并自动更新 <code>go.mod</code> 文件。还会生成一个 <code>go.sum</code> 文件（用来校验下载的包有没有被他人篡改，保证安全）。</p>
+<p>Step5:<br>在写代码的过程中，可能会引入了一些包，后来又不需要删掉了。为了保持 <code>go.mod</code> 的干净，我们经常使用这个命令自动整理依赖（没用的删掉，缺少的下载）：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">go mod tidy<br></code></pre></td></tr></table></figure></p>
+<h2 id="模块四：Go的编译流程"><a href="#模块四：Go的编译流程" class="headerlink" title="模块四：Go的编译流程"></a>模块四：Go的编译流程</h2><p>代码编写完毕后，Go 语言提供两种运行方式：</p>
+<h3 id="1-开发时运行-不生成实体文件"><a href="#1-开发时运行-不生成实体文件" class="headerlink" title="1. 开发时运行 (不生成实体文件)"></a>1. 开发时运行 (不生成实体文件)</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">go run main.go<br></code></pre></td></tr></table></figure>
 <p>它会在后台编译然后立刻运行，不会生成可见的可执行文件，非常适合开发调试。</p>
-<h3 id="部署时编译-打包成独立程序">2. 部署时编译 (打包成独立程序)</h3>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">go build main.go<br></code></pre></td></tr></table></figure>
-<p>它会像 C++
-一样，把代码连同各种框架与包，打包成一个完全独立的二进制可执行文件（在
-Linux 上没有后缀，在 Windows 上是
-<code>.exe</code>）。把编译好的这个文件扔到任何一台服务器上，哪怕那台服务器上没有安装
-Go 环境，它也能直接运行。</p>
-<h3 id="跨平台编译">3. 跨平台编译</h3>
-<p>Go 的一大杀器是极其简单的跨平台编译。在 macOS 或 Windows 中使用 Git
-bash 运行以下命令，即可编译出 Linux 服务器上运行的可执行文件：
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">GOOS=linux GOARCH=amd64 go build -o project-api main.go<br></code></pre></td></tr></table></figure> * <strong>GOOS (目标操作系统)：</strong> 常见的选项有
-<code>linux</code>、<code>windows</code>
-、<code>darwin</code>（macOS）。</p>
+<h3 id="2-部署时编译-打包成独立程序"><a href="#2-部署时编译-打包成独立程序" class="headerlink" title="2. 部署时编译 (打包成独立程序)"></a>2. 部署时编译 (打包成独立程序)</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">go build main.go<br></code></pre></td></tr></table></figure>
+<p>它会像 C++ 一样，把代码连同各种框架与包，打包成一个完全独立的二进制可执行文件（在 Linux 上没有后缀，在 Windows 上是 <code>.exe</code>）。把编译好的这个文件扔到任何一台服务器上，哪怕那台服务器上没有安装 Go 环境，它也能直接运行。</p>
+<h3 id="3-跨平台编译"><a href="#3-跨平台编译" class="headerlink" title="3. 跨平台编译"></a>3. 跨平台编译</h3><p>Go 的一大杀器是极其简单的跨平台编译。在 macOS 或 Windows 中使用 Git bash 运行以下命令，即可编译出 Linux 服务器上运行的可执行文件：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">GOOS=linux GOARCH=amd64 go build -o project-api main.go<br></code></pre></td></tr></table></figure></p>
 <ul>
-<li><p><strong>GOARCH (目标 CPU 架构)：</strong> 常见的选项有
-<code>amd64</code>（绝大多数 Intel/AMD
-芯片及云服务器）、<code>arm64</code>（苹果 M 芯片）。</p></li>
-<li><p><strong>-o project-api：</strong> <code>-o</code> 代表
-Output。如果不加这个参数，Go 编译出来的文件名默认叫
-<code>main</code>。加上
-<code>-o project-api</code>，编译器就会把打包好的可执行文件命名为
-<code>project-api</code>。</p></li>
+<li><p><strong>GOOS (目标操作系统)：</strong> 常见的选项有 <code>linux</code>、<code>windows</code> 、<code>darwin</code>（macOS）。</p>
+</li>
+<li><p><strong>GOARCH (目标 CPU 架构)：</strong> 常见的选项有 <code>amd64</code>（绝大多数 Intel/AMD 芯片及云服务器）、<code>arm64</code>（苹果 M 芯片）。</p>
+</li>
+<li><p><strong>-o project-api：</strong> <code>-o</code> 代表 Output。如果不加这个参数，Go 编译出来的文件名默认叫 <code>main</code>。加上 <code>-o project-api</code>，编译器就会把打包好的可执行文件命名为 <code>project-api</code>。</p>
+</li>
 </ul>
-<h2 id="模块五实战模拟">模块五：实战模拟</h2>
-<p>现在，我们将 Vol.1 中的后端服务从使用原生 <code>http</code>
-改进为使用 Gin 框架实现。 <em>(注：以下内容基于
-<a href="https://justimaginary.github.io/2026/04/03/Frontend-Backend-Practice-Vol-2/" target="_blank">Vol.2</a>，即需要你已经成功配置好了
-Nginx)</em></p>
-<p>Step1: 建议目录结构 <figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs text">go-demo1/<br>├── main.go<br>└── index.html<br></code></pre></td></tr></table></figure></p>
-<p>Step2: 下载 Gin 框架</p>
-<p>（在模块三中已介绍过 <code>go mod init</code> 和
-<code>go get</code>）。
-过程中可能无法连接官方的包管理器<code>proxy.golang.org</code>，这时可以使用镜像的方式，可以按照以下命令设置环境，使用国内镜像
-打开服务器控制台 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">go <span class="hljs-built_in">env</span> -w GOPROXY=https://goproxy.cn,direct<br></code></pre></td></tr></table></figure></p>
+<h2 id="模块五：实战模拟"><a href="#模块五：实战模拟" class="headerlink" title="模块五：实战模拟"></a>模块五：实战模拟</h2><p>现在，我们将 Vol.1 中的后端服务从使用原生 <code>http</code> 改进为使用 Gin 框架实现。<br><em>(注：以下内容基于 <a href="https://justimaginary.github.io/2026/04/03/Frontend-Backend-Practice-Vol-2/" target="_blank">Vol.2</a>，即需要你已经成功配置好了 Nginx)</em></p>
+<p>Step1:<br>建议目录结构<br><figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs text">go-demo1/<br>├── main.go<br>└── index.html<br></code></pre></td></tr></table></figure></p>
+<p>Step2:<br>下载 Gin 框架</p>
+<p>（在模块三中已介绍过 <code>go mod init</code> 和 <code>go get</code>）。<br>过程中可能无法连接官方的包管理器<code>proxy.golang.org</code>，这时可以使用镜像的方式，可以按照以下命令设置环境，使用国内镜像<br>打开服务器控制台<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">go <span class="hljs-built_in">env</span> -w GOPROXY=https://goproxy.cn,direct<br></code></pre></td></tr></table></figure></p>
 <ul>
 <li><code>go env -w</code>：修改 Go 的环境变量配置。</li>
 <li><code>GOPROXY=https://goproxy.cn</code>：把下载代理指向国内的高速镜像站。</li>
 <li><code>direct</code>：这是一个兜底策略。意思是“如果在镜像站里找不到某个包，再尝试直接（direct）去源地址拉取”。</li>
 </ul>
-<p>Step3: 编写后端代码 <code>main.go</code> <figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-keyword">package</span> main<br><br><span class="hljs-keyword">import</span> (<br>    <span class="hljs-string">&quot;fmt&quot;</span><br>    <span class="hljs-comment">// 导入刚刚通过 go get 下载的 Gin 框架</span><br>    <span class="hljs-string">&quot;github.com/gin-gonic/gin&quot;</span><br>)<br><br><span class="hljs-comment">// 1. 数据结构保持不变</span><br><span class="hljs-comment">// 记住 Go 的大小写规则：首字母大写（Public），这样 Gin 才能读取并转换它们</span><br><span class="hljs-keyword">type</span> Message <span class="hljs-keyword">struct</span> &#123;<br>    Name    <span class="hljs-type">string</span> <span class="hljs-string">`json:&quot;name&quot;`</span>    <span class="hljs-comment">// 学生输入的名字</span><br>    Reply   <span class="hljs-type">string</span> <span class="hljs-string">`json:&quot;reply&quot;`</span>   <span class="hljs-comment">// 服务器回的内容</span><br>    Details <span class="hljs-type">string</span> <span class="hljs-string">`json:&quot;details&quot;`</span> <span class="hljs-comment">// 额外信息</span><br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span> &#123;<br>    <span class="hljs-comment">// 2. 初始化 Gin 的路由引擎（相当于建好了房子的地基）</span><br>    <span class="hljs-comment">// Default() 会自带两个非常有用的功能：错误崩溃恢复(Recovery)和访问日志打点(Logger)</span><br>    r := gin.Default()<br><br>    <span class="hljs-comment">// 3. 定义路由和处理逻辑</span><br>    <span class="hljs-comment">// 注意看，原生是用 HandleFunc 接收所有请求，而 Gin 直接明确指明这是一个 POST 请求</span><br>    r.POST(<span class="hljs-string">&quot;/api/hello&quot;</span>, <span class="hljs-function"><span class="hljs-keyword">func</span><span class="hljs-params">(c *gin.Context)</span></span> &#123;<br>        <br>        <span class="hljs-keyword">var</span> received Message<br><br>        <span class="hljs-comment">// Gin 优化一：极简的 JSON 解析</span><br>        <span class="hljs-comment">// ShouldBindJSON 会自动读取前端传来的 JSON，并把它填入 received 结构体中</span><br>        <span class="hljs-comment">// 注意这里的 &amp;received，是传指针（内存地址），让 Gin 能修改这块内存</span><br>        <span class="hljs-keyword">if</span> err := c.ShouldBindJSON(&amp;received); err != <span class="hljs-literal">nil</span> &#123;<br>            <span class="hljs-comment">// 如果前端乱发数据（比如没发 JSON），直接返回 400 错误码</span><br>            c.JSON(<span class="hljs-number">400</span>, gin.H&#123;<span class="hljs-string">&quot;error&quot;</span>: <span class="hljs-string">&quot;数据格式不正确&quot;</span>&#125;)<br>            <span class="hljs-keyword">return</span><br>        &#125;<br><br>        fmt.Printf(<span class="hljs-string">&quot;收到请求，名字是: %s\n&quot;</span>, received.Name)<br><br>        <span class="hljs-comment">// 准备要寄回给学生的数据</span><br>        sendBack := Message&#123;<br>            Name:    received.Name,<br>            Reply:   <span class="hljs-string">&quot;服务器已收到！你好 &quot;</span> + received.Name,<br>            Details: <span class="hljs-string">&quot;Hello Gin&quot;</span>,<br>        &#125;<br><br>        <span class="hljs-comment">// Gin 优化二：极简的 JSON 返回</span><br>        <span class="hljs-comment">// 只要一行代码，不需要手动设置 Header，不需要繁琐的 Encoder</span><br>        <span class="hljs-comment">// 第一个参数 200 是 HTTP 成功状态码，第二个参数是要返回的数据结构</span><br>        c.JSON(<span class="hljs-number">200</span>, sendBack)<br>    &#125;)<br><br>    fmt.Println(<span class="hljs-string">&quot;&gt;&gt;&gt; Gin 后端服务已启动！监听端口: 8080&quot;</span>)<br>    <span class="hljs-comment">// 4. 启动服务</span><br>    r.Run(<span class="hljs-string">&quot;:8080&quot;</span>) <br>&#125;<br></code></pre></td></tr></table></figure></p>
-<h3 id="深入解析-gin-核心逻辑">深入解析 Gin 核心逻辑</h3>
-<p>我们详细解释一下解析 JSON 时的这段代码： <figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-keyword">if</span> err := c.ShouldBindJSON(&amp;received); err != <span class="hljs-literal">nil</span> &#123;<br>    c.JSON(<span class="hljs-number">400</span>, gin.H&#123;<span class="hljs-string">&quot;error&quot;</span>: <span class="hljs-string">&quot;数据格式不正确&quot;</span>&#125;)<br>    <span class="hljs-keyword">return</span><br>&#125;<br></code></pre></td></tr></table></figure></p>
+<p>Step3:<br>编写后端代码 <code>main.go</code><br><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-keyword">package</span> main<br><br><span class="hljs-keyword">import</span> (<br>    <span class="hljs-string">&quot;fmt&quot;</span><br>    <span class="hljs-comment">// 导入刚刚通过 go get 下载的 Gin 框架</span><br>    <span class="hljs-string">&quot;github.com/gin-gonic/gin&quot;</span><br>)<br><br><span class="hljs-comment">// 1. 数据结构保持不变</span><br><span class="hljs-comment">// 记住 Go 的大小写规则：首字母大写（Public），这样 Gin 才能读取并转换它们</span><br><span class="hljs-keyword">type</span> Message <span class="hljs-keyword">struct</span> &#123;<br>    Name    <span class="hljs-type">string</span> <span class="hljs-string">`json:&quot;name&quot;`</span>    <span class="hljs-comment">// 学生输入的名字</span><br>    Reply   <span class="hljs-type">string</span> <span class="hljs-string">`json:&quot;reply&quot;`</span>   <span class="hljs-comment">// 服务器回的内容</span><br>    Details <span class="hljs-type">string</span> <span class="hljs-string">`json:&quot;details&quot;`</span> <span class="hljs-comment">// 额外信息</span><br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span> &#123;<br>    <span class="hljs-comment">// 2. 初始化 Gin 的路由引擎（相当于建好了房子的地基）</span><br>    <span class="hljs-comment">// Default() 会自带两个非常有用的功能：错误崩溃恢复(Recovery)和访问日志打点(Logger)</span><br>    r := gin.Default()<br><br>    <span class="hljs-comment">// 3. 定义路由和处理逻辑</span><br>    <span class="hljs-comment">// 注意看，原生是用 HandleFunc 接收所有请求，而 Gin 直接明确指明这是一个 POST 请求</span><br>    r.POST(<span class="hljs-string">&quot;/api/hello&quot;</span>, <span class="hljs-function"><span class="hljs-keyword">func</span><span class="hljs-params">(c *gin.Context)</span></span> &#123;<br>        <br>        <span class="hljs-keyword">var</span> received Message<br><br>        <span class="hljs-comment">// Gin 优化一：极简的 JSON 解析</span><br>        <span class="hljs-comment">// ShouldBindJSON 会自动读取前端传来的 JSON，并把它填入 received 结构体中</span><br>        <span class="hljs-comment">// 注意这里的 &amp;received，是传指针（内存地址），让 Gin 能修改这块内存</span><br>        <span class="hljs-keyword">if</span> err := c.ShouldBindJSON(&amp;received); err != <span class="hljs-literal">nil</span> &#123;<br>            <span class="hljs-comment">// 如果前端乱发数据（比如没发 JSON），直接返回 400 错误码</span><br>            c.JSON(<span class="hljs-number">400</span>, gin.H&#123;<span class="hljs-string">&quot;error&quot;</span>: <span class="hljs-string">&quot;数据格式不正确&quot;</span>&#125;)<br>            <span class="hljs-keyword">return</span><br>        &#125;<br><br>        fmt.Printf(<span class="hljs-string">&quot;收到请求，名字是: %s\n&quot;</span>, received.Name)<br><br>        <span class="hljs-comment">// 准备要寄回给学生的数据</span><br>        sendBack := Message&#123;<br>            Name:    received.Name,<br>            Reply:   <span class="hljs-string">&quot;服务器已收到！你好 &quot;</span> + received.Name,<br>            Details: <span class="hljs-string">&quot;Hello Gin&quot;</span>,<br>        &#125;<br><br>        <span class="hljs-comment">// Gin 优化二：极简的 JSON 返回</span><br>        <span class="hljs-comment">// 只要一行代码，不需要手动设置 Header，不需要繁琐的 Encoder</span><br>        <span class="hljs-comment">// 第一个参数 200 是 HTTP 成功状态码，第二个参数是要返回的数据结构</span><br>        c.JSON(<span class="hljs-number">200</span>, sendBack)<br>    &#125;)<br><br>    fmt.Println(<span class="hljs-string">&quot;&gt;&gt;&gt; Gin 后端服务已启动！监听端口: 8080&quot;</span>)<br>    <span class="hljs-comment">// 4. 启动服务</span><br>    r.Run(<span class="hljs-string">&quot;:8080&quot;</span>) <br>&#125;<br></code></pre></td></tr></table></figure></p>
+<h3 id="深入解析-Gin-核心逻辑"><a href="#深入解析-Gin-核心逻辑" class="headerlink" title="深入解析 Gin 核心逻辑"></a>深入解析 Gin 核心逻辑</h3><p>我们详细解释一下解析 JSON 时的这段代码：<br><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-keyword">if</span> err := c.ShouldBindJSON(&amp;received); err != <span class="hljs-literal">nil</span> &#123;<br>    c.JSON(<span class="hljs-number">400</span>, gin.H&#123;<span class="hljs-string">&quot;error&quot;</span>: <span class="hljs-string">&quot;数据格式不正确&quot;</span>&#125;)<br>    <span class="hljs-keyword">return</span><br>&#125;<br></code></pre></td></tr></table></figure></p>
 <ul>
-<li><p><strong>第一部分：执行动作并接住结果
-<code>err := c.ShouldBindJSON(&amp;received)</code></strong></p>
+<li><p><strong>第一部分：执行动作并接住结果 <code>err := c.ShouldBindJSON(&amp;received)</code></strong></p>
 <p>这其实是一个初始化语句，在判断条件之前执行。</p>
 <ul>
-<li><code>&amp;received</code> ： Go
-语言默认是值传递（Copy），函数内部改的只是副本。所以必须加上
-<code>&amp;</code> 传内存地址。</li>
-<li><code>c.ShouldBindJSON(...)</code>： 尝试把前端发来的 JSON
-数据解析并绑定到我们提供的内存地址上。这个方法执行完后，会返回一个结果（是否出错）。</li>
-<li><code>err :=</code> (短变量声明)： 等价于
-<code>var err error = ...</code>。编译器会自动推导出这是一个错误类型的变量，并接住返回的错误信息。</li>
-</ul></li>
-<li><p><strong>第二部分：分号 <code>;</code></strong></p>
-<p>在 Go 语言的 <code>if</code>
-语句中，允许在条件判断之前，先执行一段极短的代码。分号 <code>;</code>
-就是用来分隔“执行语句”和“判断条件”的。</p></li>
-<li><p><strong>第三部分：条件判断 <code>err != nil</code></strong></p>
-<p><code>nil</code> 在 Go 语言里代表“空”，相当于 C++ 里的
-<code>nullptr</code> 或 Python 里的
-<code>None</code>。<code>err != nil</code>
-意思就是“如果发生的错误不是空”（即发生了错误）。</p></li>
-<li><p><strong>为什么要合并在一行写？</strong></p>
-<p>如果按传统的写法： <figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs go">err := c.ShouldBindJSON(&amp;received) <span class="hljs-comment">// 先执行动作并赋值</span><br><span class="hljs-keyword">if</span> err != <span class="hljs-literal">nil</span> &#123;                    <span class="hljs-comment">// 然后再判断</span><br>    <span class="hljs-comment">// 处理错误</span><br>&#125;<br></code></pre></td></tr></table></figure>
-把它们合并成一行的最大好处是：<strong>变量作用域（Scope）的控制。</strong></p>
-<p>在合并的写法中，变量 <code>err</code> 是在 <code>if</code>
-语句内部诞生的。这意味着，一旦出了这个 <code>if</code>
-的大括号，<code>err</code>
-这个变量就会立刻被销毁，它绝不会污染外面的代码环境。</p></li>
+<li><code>&amp;received</code> ： Go 语言默认是值传递（Copy），函数内部改的只是副本。所以必须加上 <code>&amp;</code> 传内存地址。</li>
+<li><code>c.ShouldBindJSON(...)</code>： 尝试把前端发来的 JSON 数据解析并绑定到我们提供的内存地址上。这个方法执行完后，会返回一个结果（是否出错）。</li>
+<li><code>err :=</code> (短变量声明)： 等价于 <code>var err error = ...</code>。编译器会自动推导出这是一个错误类型的变量，并接住返回的错误信息。</li>
 </ul>
-<p>Step4: 打开服务器终端，再运行一次 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">go mod tidy<br></code></pre></td></tr></table></figure></p>
-<p>Step5: 编译并运行</p>
-<p>服务器内存受限，推荐使用先编译再运行，直接<code>go run main.go</code>目前也可以接受。
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs bash">go build main.go<br>./main<br></code></pre></td></tr></table></figure>
-（此时任务还在进行，不要关闭终端。当测试结束后，输入ctrl+c，结束进程）</p>
-<p>访问
-<a href="http://47.101.141.52:888/" target="_blank"><code>http://47.101.141.52:888/</code></a>
-，查看使用Nginx代理+Gin框架，部署到服务器上属于你的第一个网站！</p>
+</li>
+<li><p><strong>第二部分：分号 <code>;</code></strong></p>
+<p>在 Go 语言的 <code>if</code> 语句中，允许在条件判断之前，先执行一段极短的代码。分号 <code>;</code> 就是用来分隔“执行语句”和“判断条件”的。</p>
+</li>
+<li><p><strong>第三部分：条件判断 <code>err != nil</code></strong></p>
+<p><code>nil</code> 在 Go 语言里代表“空”，相当于 C++ 里的 <code>nullptr</code> 或 Python 里的 <code>None</code>。<code>err != nil</code> 意思就是“如果发生的错误不是空”（即发生了错误）。</p>
+</li>
+<li><p><strong>为什么要合并在一行写？</strong></p>
+<p>如果按传统的写法：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs go">err := c.ShouldBindJSON(&amp;received) <span class="hljs-comment">// 先执行动作并赋值</span><br><span class="hljs-keyword">if</span> err != <span class="hljs-literal">nil</span> &#123;                    <span class="hljs-comment">// 然后再判断</span><br>    <span class="hljs-comment">// 处理错误</span><br>&#125;<br></code></pre></td></tr></table></figure>
+<p>把它们合并成一行的最大好处是：<strong>变量作用域（Scope）的控制。</strong> </p>
+<p>在合并的写法中，变量 <code>err</code> 是在 <code>if</code> 语句内部诞生的。这意味着，一旦出了这个 <code>if</code> 的大括号，<code>err</code> 这个变量就会立刻被销毁，它绝不会污染外面的代码环境。</p>
+</li>
+</ul>
+<p>Step4:<br>打开服务器终端，再运行一次<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">go mod tidy<br></code></pre></td></tr></table></figure></p>
+<p>Step5:<br>编译并运行</p>
+<p>服务器内存受限，推荐使用先编译再运行，直接<code>go run main.go</code>目前也可以接受。<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs bash">go build main.go<br>./main<br></code></pre></td></tr></table></figure><br>（此时任务还在进行，不要关闭终端。当测试结束后，输入ctrl+c，结束进程）</p>
+<p>访问  <a href="http://47.101.141.52:888/" target="_blank"><code>http://47.101.141.52:888/</code></a> ，查看使用Nginx代理+Gin框架，部署到服务器上属于你的第一个网站！</p>
 <p><br></p>
-<p><strong>结语：</strong> 相比于 C++
-复杂的指针管理、缓慢的编译速度和庞大的语法包袱，Go
-语言在牺牲了极少性能的前提下，换来了极快的编译速度、自带的垃圾回收（GC）以及原生的超强并发能力，并且只保留了部分指针语法，去除了复杂的指针运用和传统的虚函数继承等内容。加上其严格的语法规范，使得
-Go 成为了当今时代编写后端 API 最完美的语言之一。</p>
-<hr />
+<p><strong>结语：</strong> 相比于 C++ 复杂的指针管理、缓慢的编译速度和庞大的语法包袱，Go 语言在牺牲了极少性能的前提下，换来了极快的编译速度、自带的垃圾回收（GC）以及原生的超强并发能力，并且只保留了部分指针语法，去除了复杂的指针运用和传统的虚函数继承等内容。加上其严格的语法规范，使得 Go 成为了当今时代编写后端 API 最完美的语言之一。</p>
+<hr>
 <p>END</p>
 
                 
