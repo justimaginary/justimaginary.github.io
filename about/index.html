@@ -86,7 +86,40 @@
 
 
   
-<meta name="generator" content="Hexo 8.1.1"></head>
+<meta name="generator" content="Hexo 8.1.1">
+<style>
+  .about-resume {
+    margin-top: 0.75rem;
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+  .about-resume .resume-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.25rem 0.8rem;
+    font-size: 0.9rem;
+    border: 1px solid var(--text-color, #888);
+    border-radius: 4px;
+    color: var(--text-color, #555);
+    text-decoration: none;
+    transition: all 0.2s ease;
+  }
+  .about-resume .resume-link:hover {
+    color: #fff;
+    background-color: #2f4154;
+    border-color: #2f4154;
+    text-decoration: none;
+  }
+  .about-resume .resume-icon {
+    vertical-align: middle;
+    flex-shrink: 0;
+  }
+</style>
+
+</head>
 
 
 <body>
@@ -316,6 +349,15 @@
         </a>
       
     </div>
+    <div class="about-resume">
+      <a href="/resume-cn.pdf" target="_blank" class="resume-link hint--bottom hint--rounded" aria-label="Resume (CN)">
+        <svg class="resume-icon" viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zM6 20V4h7v5h5v11H6z"/></svg>
+        Resume (CN)
+      </a>
+      <a href="/resume-en.pdf" target="_blank" class="resume-link hint--bottom hint--rounded" aria-label="Resume (EN)">
+        <svg class="resume-icon" viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zM6 20V4h7v5h5v11H6z"/></svg>
+        Resume (EN)
+      </a></div>
   </div>
 </div>
 
