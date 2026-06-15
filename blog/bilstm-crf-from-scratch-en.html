@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Building BiLSTM-CRF from Scratch Segmentation">
+    <title>Building BiLSTM-CRF from Scratch Segmentation · imaginary</title>
+    <link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="../assets/styles.css">
+    <script>
+      window.MathJax = {
+        tex: {
+          inlineMath: [["\\(", "\\)"]],
+          displayMath: [["\\[", "\\]"]],
+          processEscapes: true
+        },
+        options: {
+          skipHtmlTags: ["script", "noscript", "style", "textarea", "pre", "code"]
+        }
+      };
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js" async></script>
+    <script src="../assets/site.js" defer></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#article">Skip to article</a>
+    <header class="site-header" data-site-header>
+      <nav class="nav" aria-label="Primary navigation">
+        <a class="nav__brand" href="../index.html#about" aria-label="imaginary homepage">imaginary</a>
+        <div class="nav__links" aria-label="Sections">
+          <a href="../index.html#about">About</a>
+          <a href="../index.html#news">News</a>
+          <a href="../index.html#publications">Publications</a>
+          <a href="../index.html#blogs" aria-current="true" class="is-active">Blogs</a>
+        </div>
+      </nav>
+    </header>
+    <main class="article-shell" id="article">
+      <article class="article">
+        <a class="back-link" href="../index.html#blogs">Back to Blogs</a>
+        <p class="eyebrow">Tech / NLP</p>
+        <h1>Building BiLSTM-CRF from Scratch Segmentation</h1>
+        <p class="article__meta"><time datetime="2026-04-05">2026-04-05</time></p>
+        <div class="category-list" aria-label="Categories"><span>Tech</span><span>NLP</span></div>
+        <div class="tag-list" aria-label="Tags"><span>PyTorch</span><span>Deep Learning</span><span>BiLSTM-CRF</span></div>
+        <div class="article__content">
+<blockquote>
+<p>本文提供中文版本。 
+<a href="bilstm-crf-from-scratch-cn.html">阅读简体中文版</a></p>
+</blockquote>
+<hr>
+<p>Chinese word segmentation is the cornerstone of Natural Language Processing (NLP). I decided not to rely on the API of CRF++ or any high-level APIs. Instead, I built a model from scratch using Pytorch to handle low-level tensor operations.</p>
+<p>Ultimately, this model achieved a <strong>91.0% of F1 Score</strong> on SIGHAN PKU!</p>
+<p>This article documents the entire process of architecting the model from the ground up.</p>
+<h2 id="1-transforming-language-into-mathematics">1.Transforming Language into Mathematics</h2>
+<p>Computers cannot comprehend Chinese characters directly, they exclusively process numerical data. So before feeding text into the model, we need to bridge the gap by digitizing the text.</p>
+<h3 id="1-1-word-embedding">1.1 Word Embedding</h3>
+
+        </div>
+        <nav class="post-nav" aria-label="Post navigation"><a href="frontend-backend-practice-vol-4.html"><span>Previous</span><strong>前后端交互工程实践指南 (Vol.4：外部 API 接入)</strong></a><a href="bilstm-crf-from-scratch-cn.html"><span>Next</span><strong>从零手写 BiLSTM-CRF 分词方法</strong></a></nav>
+      </article>
+    </main>
+    <footer class="site-footer">
+      <p>© 2026 imaginary. Built as a lightweight static academic homepage.</p>
+    </footer>
+  </body>
+</html>

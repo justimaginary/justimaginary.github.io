@@ -1,0 +1,642 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="前后端交互工程实践指南 (Vol.1：入门与基础)">
+    <title>前后端交互工程实践指南 (Vol.1：入门与基础) · imaginary</title>
+    <link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="../assets/styles.css">
+    <script>
+      window.MathJax = {
+        tex: {
+          inlineMath: [["\\(", "\\)"]],
+          displayMath: [["\\[", "\\]"]],
+          processEscapes: true
+        },
+        options: {
+          skipHtmlTags: ["script", "noscript", "style", "textarea", "pre", "code"]
+        }
+      };
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js" async></script>
+    <script src="../assets/site.js" defer></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#article">Skip to article</a>
+    <header class="site-header" data-site-header>
+      <nav class="nav" aria-label="Primary navigation">
+        <a class="nav__brand" href="../index.html#about" aria-label="imaginary homepage">imaginary</a>
+        <div class="nav__links" aria-label="Sections">
+          <a href="../index.html#about">About</a>
+          <a href="../index.html#news">News</a>
+          <a href="../index.html#publications">Publications</a>
+          <a href="../index.html#blogs" aria-current="true" class="is-active">Blogs</a>
+        </div>
+      </nav>
+    </header>
+    <main class="article-shell" id="article">
+      <article class="article">
+        <a class="back-link" href="../index.html#blogs">Back to Blogs</a>
+        <p class="eyebrow">Tech / Tutorial</p>
+        <h1>前后端交互工程实践指南 (Vol.1：入门与基础)</h1>
+        <p class="article__meta"><time datetime="2026-03-30">2026-03-30</time></p>
+        <div class="category-list" aria-label="Categories"><span>Tech</span><span>Tutorial</span></div>
+        <div class="tag-list" aria-label="Tags"><span>前后端交互</span><span>Go</span><span>Cpp</span></div>
+        <div class="article__content">
+<p>本文档介绍了基本计算机网络中有关前后端交互的工程实践，考虑到cpp并非好的后端语言，这里后端所用语言是Go，前端为html。附录中会给出使用cpp作为后端语言进行前后端交互的例子，本文会有概念与实操，按文档进行以获得最佳效果。</p>
+<hr>
+<p>本文档前后端最终交互内容：</p>
+<p>前端显示一个页面，提示输入一个整数。等待输入后将整数返回后端，根据映射表，后端返回内容给前端，前端再将其输出。</p>
+<p>映射表：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">输入</th>
+<th style="text-align:left">输出</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">非整数</td>
+<td style="text-align:left">Num必须是整数</td>
+</tr>
+<tr>
+<td style="text-align:left">整数</td>
+<td style="text-align:left">2*整数+1</td>
+</tr>
+</tbody>
+</table>
+<h2 id="%E6%A8%A1%E5%9D%97%E4%B8%80%EF%BC%9A%E5%89%8D%E5%90%8E%E7%AB%AF%E4%BA%A4%E4%BA%92%E7%AE%80%E8%A6%81%E4%BB%8B%E7%BB%8D">模块一：前后端交互简要介绍</h2>
+<h3 id="%E7%AE%80%E4%BB%8B">简介</h3>
+<p>首先需要明确的是，前后端交互的三个流程是<strong>请求，处理与响应</strong>。即前端（也就是浏览器网页），向后端服务器（也就是使用代码写的一个程序）发送一个请求，后端服务器接受后进行处理，处理完后会返回内容给前端（这一过程就是响应）。</p>
+<blockquote>
+<p><strong>打一个比喻：</strong>
+我们一直写的程序的输入依靠的是文件或者控制台输入，输出是文件或者控制台输出，前后端交互就是输入为前端发送来的请求，输出为返回给前端的内容，<strong>相当于后端为一个函数</strong>。</p>
+</blockquote>
+<h3 id="http%E5%8D%8F%E8%AE%AE">HTTP协议</h3>
+<p>在前后端交互中，HTTP（Hypertext Transfer Protocol）协议是最常用的协议之一。HTTP是一种应用层协议，用于在Web应用程序之间传输数据。它定义了客户端和服务器之间的通信规则和约定。</p>
+<p>以下是HTTP协议的一些关键概念和要点：</p>
+<ul>
+<li><strong>请求和响应：</strong> HTTP通信是通过请求和响应进行的。客户端发送HTTP请求给服务器，服务器处理请求并返回HTTP响应给客户端。</li>
+<li><strong>方法：</strong> HTTP定义了几种请求方法，常见的有GET、POST、PUT、DELETE等。不同的方法用于执行不同的操作，如获取资源、提交数据、更新资源和删除资源。</li>
+<li><strong>URL：</strong> URL（Uniform Resource Locator）用于标识要访问的资源的位置。它由协议类型、服务器地址、路径和可选的查询参数组成。</li>
+</ul>
+<hr>
+<ul>
+<li><strong>请求头：</strong> HTTP请求包括一个请求头，用于传递关于请求的元数据，如请求的方法、请求的资源、请求的内容类型等。</li>
+<li><strong>请求体：</strong> 某些请求，如POST请求，可以包含请求体。请求体用于传递数据给服务器，如表单数据、JSON数据等。<h4 id="%E5%AE%9E%E4%BE%8B%E6%BC%94%E7%A4%BA%EF%BC%9A%E7%94%A8%E6%88%B7%E7%99%BB%E5%BD%95%E5%9C%BA%E6%99%AF">实例演示：用户登录场景</h4>
+</li>
+</ul>
+<h5 id="%E5%AE%8C%E6%95%B4%E7%9A%84-http-%E8%AF%B7%E6%B1%82%E6%8A%A5%E6%96%87-request">完整的 HTTP 请求报文 (Request)</h5>
+<div class="code-block"><button class="copy-code-button" type="button">Copy</button><pre><code class="lang-http">POST /api/login HTTP/1.1
+Host: 47.101.141.52:8080
+Content-Type: application/json
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64)
+
+{&quot;username&quot;: &quot;zhangsan&quot;, &quot;password&quot;: &quot;123&quot;}
+</code></pre></div>
+<ul>
+<li><strong>请求解析</strong>：<ul>
+<li><strong>方法与 URL</strong>：使用了 <code>POST</code> 方法，目标路径是 <code>/api/login</code>。</li>
+<li><strong>请求头</strong>：从第一行 <code>POST /api/login</code> 开始，到 <code>User-Agent: ...</code> 结束的所有行。它们描述了“我是谁”以及“我要发什么”。其中<code>Content-Type: application/json</code> 告诉后端，接下来的请求体里装的是 JSON 格式的数据。</li>
+<li><strong>请求体</strong>：在空行之后，包含了真正的业务数据 <code>{&quot;username&quot;: &quot;zhangsan&quot;, ...}</code>。</li>
+</ul>
+</li>
+</ul>
+<hr>
+<ul>
+<li><strong>响应状态码：</strong> HTTP响应包括一个状态码，用于指示请求的处理结果。常见的状态码有200表示成功，404表示资源未找到，500表示服务器内部错误等。</li>
+<li><strong>响应头：</strong> HTTP响应还包括响应头，用于传递关于响应的元数据，如响应的内容类型、响应的长度等。</li>
+<li><strong>响应体：</strong> 响应体是服务器返回给客户端的实际数据内容，可以是HTML、JSON、图片等不同类型的数据。</li>
+</ul>
+<h4 id="%E5%AE%9E%E4%BE%8B%E6%BC%94%E7%A4%BA%EF%BC%9A%E7%94%A8%E6%88%B7%E7%99%BB%E5%BD%95%E5%9C%BA%E6%99%AF">实例演示：用户登录场景</h4>
+<h5 id="%E5%AE%8C%E6%95%B4%E7%9A%84-http-%E5%93%8D%E5%BA%94%E6%8A%A5%E6%96%87-response">完整的 HTTP 响应报文 (Response)</h5>
+<div class="code-block"><button class="copy-code-button" type="button">Copy</button><pre><code class="lang-http">HTTP/1.1 200 OK
+Content-Type: application/json
+Content-Length: 46
+Set-Cookie: session_id=xyz987; Path=/
+
+{&quot;message&quot;: &quot;登录成功&quot;, &quot;token&quot;: &quot;abcde123&quot;}
+</code></pre></div>
+<ul>
+<li><strong>响应解析</strong>：<ul>
+<li><strong>响应状态码</strong>：<code>200 OK</code> 明确告诉前端，这次登录逻辑在后端跑通了。</li>
+<li><strong>响应头</strong>：从第一行 <code>HTTP/1.1 200 OK</code> 开始，到 <code>Set-Cookie: ...</code> 结束的所有行。<strong>响应头是可以由后端开发者在代码中自定义的</strong>。</li>
+<li><strong>功能说明</strong>：<code>Set-Cookie</code> 是后端发给前端的“通行证”。由于 HTTP 是“无状态”的，服务器通过在响应头里自定义这个字段，要求浏览器存下信息。当浏览器下次发起请求时会自动带上它，从而让服务器识别出用户。</li>
+<li><strong>响应体</strong>：返回了 JSON 格式的成功消息和 Token，前端 JavaScript 拿到后会据此执行页面跳转。</li>
+</ul>
+</li>
+</ul>
+<blockquote>
+<p><strong>小贴士</strong>：你会发现请求头/响应头与 Body 之间都有一个<strong>空行</strong>，那是协议规定的“分界线”，没有它，程序就不知道哪里是信封，哪里是信件内容。</p>
+</blockquote>
+<hr>
+<ul>
+<li><strong>Cookie和Session：</strong> HTTP协议支持使用Cookie和Session来维持状态。服务器可以通过在响应中设置Cookie来存储一些客户端状态信息，客户端将Cookie保存并在后续请求中发送给服务器。</li>
+</ul>
+<blockquote>
+<p><strong>值得注意的是：</strong>
+HTTP协议是一种无状态协议，也就是每一个请求与响应之间是独立的，服务器并不会保留客户端的状态信息。举个例子，对于一个登录界面，前端发送登录请求，后端在验证凭据合法后虽然允许了访问，但由于 HTTP 协议的无状态特性，服务器并不会在内存中记住这位用户，但开发者可能会通过服务端手动实现记忆。这意味着，当用户发起第二次请求（比如查看个人订单）时，服务器依然会把用户当成陌生人，要求你重新证明身份。解决方案就是使用Cookie、token等。</p>
+</blockquote>
+<h3 id="websocket%E5%8D%8F%E8%AE%AE">WebSocket协议</h3>
+<p>WebSocket协议是一种双向的通信协议，他允许在客户端和服务器之间建立持久的连接并进行实时双向通信，相对于HTTP请求，WebSocket提供了更低的延迟与更好的性能，所以我的机器人Nina就也采用了WebSocket协议，用于实时接受消息并处理。</p>
+<p>HTTP协议与WebSocket协议的主要区别是，HTTP协议必须每次由前端请求，后端才能产生响应；而WebSocket协议是前后端一次握手（成功连接，这一过程通过HTTP协议）后，前后端可以任意向对方发送消息，直到主动断开连接，后端不再依赖前端的请求。</p>
+<h3 id="%E6%A0%B8%E5%BF%83%E6%9C%AF%E8%AF%AD">核心术语</h3>
+<ul>
+<li><strong>API：</strong> 接口，也就是前端调用接口来实现交互，可以理解为一个函数，调用函数返回内容。</li>
+<li><strong>JSON：</strong> 前后端交互的主要语言，一种数据格式。</li>
+<li><strong>端口：</strong> 一台服务器（一个 IP）可以同时运行很多程序（比如网站、数据库）。端口用来区分这些不同的服务。一个端口只能运行一个程序。</li>
+<li><strong>路由：</strong> 可以理解为函数名。路由的组成：URL 中域名/端口之后的部分。<ul>
+<li><code>https://api.shop.com:8080/users</code> --&gt; <code>/users</code> 就是路由。</li>
+<li><code>https://api.shop.com:8080/products</code> --&gt; <code>/products</code> 是另一个路由。</li>
+</ul>
+</li>
+<li><strong>后端路由：</strong> 服务器根据不同的路径，调用不同的函数。看到 <code>/login</code>，去跑登录的代码。看到 <code>/get_order</code>，去跑查询订单的代码。</li>
+</ul>
+<h3 id="cors%E4%B8%8E%E8%B7%A8%E5%9F%9F">CORS与跨域</h3>
+<p>浏览器有一个基本安全原则：同源策略。它规定，默认情况下，只有当“协议、域名、端口”三者完全一致时，浏览器才允许前端脚本去读取另一个地址的数据。</p>
+<p>举几个例子：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">场景</th>
+<th style="text-align:left">是否跨域</th>
+<th style="text-align:left">原因</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><code>http://a.com</code> -&gt; <code>http://a.com/api</code></td>
+<td style="text-align:left">否</td>
+<td style="text-align:left">协议、域名、端口都一样</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>http://a.com</code> -&gt; <code>https://a.com</code></td>
+<td style="text-align:left">是</td>
+<td style="text-align:left">协议不同 (http vs https)</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>http://a.com</code> -&gt; <code>http://b.com</code></td>
+<td style="text-align:left">是</td>
+<td style="text-align:left">域名不同 (a vs b)</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>http://a.com:8080</code> -&gt; <code>http://a.com:3000</code></td>
+<td style="text-align:left">是</td>
+<td style="text-align:left">端口不同 (8080 vs 3000)</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>为什么要有这个限制？</strong>
+举个例子：如果登录了网银（bank.com），同时也打开了一个恶意网站（evil.com）。如果没有同源策略，evil.com 里的脚本就能轻而易举地读取你网银的登录信息或余额。</p>
+</blockquote>
+<p>值得注意的是产生了跨域并不意味着后端没有收到请求，事实是，对于简单请求，后端收到请求也返回给了前端，但前端的载体浏览器发现，后端并没有批准跨域，所以拒绝了数据并报错。但对于自定义头与POST（JSON）等的复杂请求，浏览器会发送OPTIONS预检请求，若预检不通过则不会发送业务请求。</p>
+<p>目前的主流解决方案有CORS与Nginx反向代理，本文只介绍CORS，Nginx反向代理后续介绍。</p>
+<p>CORS其实非常简单，CORS (Cross-Origin Resource Sharing)，即跨域资源共享。它做的就是要求后端在响应头里加一张“通行证”：
+<code>Access-Control-Allow-Origin: *</code> (允许所有人) 或 <code>http://your-frontend.com</code> (只允许你的前端)。</p>
+<h3 id="%E5%AE%8C%E6%95%B4%E7%9A%84%E4%BA%A4%E4%BA%92%E6%B5%81%E7%A8%8B">完整的交互流程</h3>
+<ol>
+<li>前端与用户产生交互，需要发送请求</li>
+<li>定位IP与端口（API服务的地方）</li>
+<li>向后端传递请求，请求中会包含路由</li>
+<li>后端根据不同的路由调用不同的函数，返回响应</li>
+</ol>
+<p><br>
+以上只是比较基础的前后端交互的概念与流程，更深层的TCP等协议都未做介绍，以下进入实操。</p>
+<h2 id="%E6%A8%A1%E5%9D%97%E4%BA%8C%EF%BC%9A%E8%BF%9E%E6%8E%A5%E4%BA%91%E6%9C%8D%E5%8A%A1%E5%99%A8">模块二：连接云服务器</h2>
+<p>参见连接服务器文档</p>
+<h2 id="%E6%A8%A1%E5%9D%97%E4%B8%89%EF%BC%9A%E5%89%8D%E5%90%8E%E7%AB%AF%E4%BA%A4%E4%BA%92%E5%AE%9E%E4%BE%8B1">模块三：前后端交互实例1:</h2>
+<p>Step1:
+建议目录结构</p>
+<div class="code-block"><button class="copy-code-button" type="button">Copy</button><pre><code class="lang-text">cpp-demo/
+├── main.cpp
+├── httplib.h
+└── index.html
+</code></pre></div>
+<p>Step2:
+编写后端代码</p>
+<div class="code-block"><button class="copy-code-button" type="button">Copy</button><pre><code class="lang-cpp">#include &quot;httplib.h&quot;
+#include &lt;iostream&gt;
+
+using namespace httplib;
+
+int main() {
+    Server svr;
+
+    // 1. 静态文件路由：访问 http://localhost:8080 时返回当前的 index.html
+    svr.Get(&quot;/&quot;, [](const Request&amp; /*req*/, Response&amp; res) {
+        res.set_content(&quot;&lt;html&gt;&lt;body&gt;&lt;h1&gt;Loading...&lt;/h1&gt;&lt;script&gt;location.href=&#39;/index.html&#39;&lt;/script&gt;&lt;/body&gt;&lt;/html&gt;&quot;, &quot;text/html&quot;);
+    });
+
+    // 允许服务器读取当前文件夹下的静态文件 (如 index.html)
+    svr.set_mount_point(&quot;/&quot;, &quot;./&quot;);
+
+    // 2. API 路由：处理前端发来的数据
+    svr.Get(&quot;/api/greet&quot;, [](const Request&amp; req, Response&amp; res) {
+        // 获取前端传来的参数 &quot;name&quot;
+        std::string name = req.get_param_value(&quot;name&quot;);
+        if (name.empty()) name = &quot;陌生人&quot;;
+
+        std::string json_data = &quot;{\&quot;message\&quot;: \&quot;你好 &quot; + name + &quot;，这是来自 C++ 后端的回复！\&quot;}&quot;;
+
+        // 设置跨域头（如果本地直接双击打开 HTML 需要这个）
+        res.set_header(&quot;Access-Control-Allow-Origin&quot;, &quot;*&quot;);
+        res.set_content(json_data, &quot;application/json&quot;);
+
+        std::cout &lt;&lt; &quot;收到请求，名字是: &quot; &lt;&lt; name &lt;&lt; std::endl;
+    });
+
+    std::cout &lt;&lt; &quot;C++ 后端已启动：http://localhost:8080&quot; &lt;&lt; std::endl;
+    svr.listen(&quot;0.0.0.0&quot;, 8080);
+
+    return 0;
+}
+</code></pre></div>
+<p>Step3:
+编写前端代码</p>
+<div class="code-block"><button class="copy-code-button" type="button">Copy</button><pre><code class="lang-html">&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+    &lt;meta charset=&quot;UTF-8&quot;&gt;
+    &lt;title&gt;C++ 前后端交互&lt;/title&gt;
+&lt;/head&gt;
+&lt;body style=&quot;text-align: center; padding-top: 50px; font-family: sans-serif;&quot;&gt;
+    &lt;h2&gt;C++ 本地交互演示&lt;/h2&gt;
+    &lt;input type=&quot;text&quot; id=&quot;nameInput&quot; placeholder=&quot;输入你的名字&quot;&gt;
+    &lt;button onclick=&quot;sendToCpp()&quot;&gt;发送给 C++&lt;/button&gt;
+
+    &lt;p id=&quot;response&quot; style=&quot;color: blue; margin-top: 20px;&quot;&gt;&lt;/p&gt;
+
+    &lt;script&gt;
+        async function sendToCpp() {
+            const name = document.getElementById(&#39;nameInput&#39;).value;
+            // 请求 C++ 开启的 8080 端口
+            const res = await fetch(`http://localhost:8080/api/greet?name=${name}`);
+            const data = await res.json();
+            document.getElementById(&#39;response&#39;).innerText = data.message;
+        }
+    &lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre></div>
+<p>Step4:</p>
+<p>访问<a href="https://raw.githubusercontent.com/yhirose/cpp-httplib/master/httplib.h">https://raw.githubusercontent.com/yhirose/cpp-httplib/master/httplib.h</a> ，下载httplib.h，并参考Step1放置在文件夹内。</p>
+<p>Step5:</p>
+<p>点击开始菜单，搜索“Developer Command Prompt for VS 2022”（注：建立在大家高程使用的vs2022上）
+打开命令窗口</p>
+<div class="code-block"><button class="copy-code-button" type="button">Copy</button><pre><code class="lang-cmdForVS2022">where cl
+</code></pre></div>
+<p>若输出类似</p>
+<div class="code-block"><button class="copy-code-button" type="button">Copy</button><pre><code class="lang-cmdForVS2022">C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\&lt;version&gt;\bin\Hostx64\x64\cl.exe
+</code></pre></div>
+<p>就可以执行编译命令（并非使用g++编译）</p>
+<div class="code-block"><button class="copy-code-button" type="button">Copy</button><pre><code class="lang-cmdForVS2022">cl /EHsc /utf-8 main.cpp ws2_32.lib /Fe:myserver.exe
+myserver.exe
+</code></pre></div>
+<p>（此时任务还在进行，不要关闭终端。当测试结束后，输入ctrl+c，结束进程）</p>
+<p>编译可能会遇到很多问题，编码语言请使用UTF-8，否则前端会出现乱码，若变更前端字符代码，则后端编译删去/utf-8，这是我找到的比较好的解决方案，这再次印证了c++并不是一门好的后端语言。</p>
+<p>Step6:
+打开浏览器，进入 <a href="http://localhost:8080">http://localhost:8080</a></p>
+<p>至此，已经完成了一个使用c++编写的前后端交互的程序。</p>
+<h2 id="%E6%A8%A1%E5%9D%97%E5%9B%9B%EF%BC%9Adevtools%E4%BD%BF%E7%94%A8%E6%8C%87%E5%8D%97">模块四：DevTools使用指南:</h2>
+<p>Step1：一个挑战题！</p>
+<p>密文使用Base64加密，网络上有很多解码器！</p>
+<p>访问<a href="http://47.101.141.52/">http://47.101.141.52/</a> ；来挑战一下吧！</p>
+<h2 id="%E6%A8%A1%E5%9D%97%E4%BA%94%EF%BC%9A%E5%89%8D%E5%90%8E%E7%AB%AF%E4%BA%A4%E4%BA%92%E5%AE%9E%E4%BE%8B2">模块五：前后端交互实例2:</h2>
+<p>Step1:
+建议目录结构</p>
+<div class="code-block"><button class="copy-code-button" type="button">Copy</button><pre><code class="lang-text">go-demo1/
+├── main.go
+└── index.html
+</code></pre></div>
+<p>Step2:
+编写后端代码</p>
+<div class="code-block"><button class="copy-code-button" type="button">Copy</button><pre><code class="lang-go">// 1. 告诉系统：这是一个可以独立运行的程序
+package main
+
+// 2. 导入工具箱：我们需要处理网络(http)、打印文字(fmt)和处理JSON数据(encoding/json)
+import (
+    &quot;encoding/json&quot;
+    &quot;fmt&quot;
+    &quot;net/http&quot;
+)
+
+// 3. 定义我们要接收和发送的数据格式
+type Message struct {
+    Name    string `json:&quot;name&quot;`  // 学生输入的名字
+    Reply   string `json:&quot;reply&quot;` // 服务器回的内容
+    Details string `json:&quot;details&quot;` //额外信息
+}
+
+func handleRequest(w http.ResponseWriter, r *http.Request) {
+    fmt.Printf(&quot;收到来自 %s 的请求！\n&quot;, r.RemoteAddr)
+    // 设置返回的内容格式为 JSON
+    w.Header().Set(&quot;Content-Type&quot;, &quot;application/json&quot;)
+
+    // 如果是“预检请求”(OPTIONS)，直接返回成功
+    if r.Method == &quot;OPTIONS&quot; {
+       return
+    }
+
+    // 解析学生从前端传来的名字
+    var received Message
+    json.NewDecoder(r.Body).Decode(&amp;received)
+
+    // 准备要寄回给学生的数据
+    sendBack := Message{
+       Name:    received.Name,
+       Reply:   &quot;服务器已收到！你好 &quot; + received.Name,
+       Details: &quot;这是从后端传来的额外详情信息。&quot;,
+    }
+
+    // 把数据变成 JSON 字符串发回给前端
+    json.NewEncoder(w).Encode(sendBack)
+}
+
+func main() {
+    // 设置“路标”：当访问 /api/hello 时，交给 handleRequest 函数处理
+    http.HandleFunc(&quot;/api/hello&quot;, handleRequest)
+
+    fmt.Println(&quot;&gt;&gt;&gt; 后端服务已启动！监听端口: 8080&quot;)
+
+    // 启动服务
+    http.ListenAndServe(&quot;:8080&quot;, nil)
+}
+</code></pre></div>
+<p>Step3:
+编写前端代码</p>
+<div class="code-block"><button class="copy-code-button" type="button">Copy</button><pre><code class="lang-html">&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;zh-CN&quot;&gt;
+&lt;head&gt;
+    &lt;meta charset=&quot;UTF-8&quot;&gt;
+    &lt;title&gt;极简前后端交互实验&lt;/title&gt;
+    &lt;style&gt;
+       body { font-family: &#39;PingFang SC&#39;, sans-serif; padding: 40px; background: #f5f5f5; line-height: 1.6; }
+       .container { max-width: 600px; margin: 0 auto; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+       input { padding: 10px; width: 70%; border: 1px solid #ddd; border-radius: 4px; }
+       button { padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; }
+       .box { margin-top: 20px; padding: 15px; border-radius: 6px; font-size: 13px; }
+       .sent { background: #e8f0fe; border-left: 5px solid #1a73e8; }
+       .response { background: #f8f9fa; border-left: 5px solid #343a40; color: #333; }
+       .error { background: #fff1f0; border-left: 5px solid #ff4d4f; color: #cf1322; }
+       h4 { margin-bottom: 5px; color: #666; }
+       pre { white-space: pre-wrap; word-wrap: break-word; margin: 0; }
+    &lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+
+&lt;div class=&quot;container&quot;&gt;
+    &lt;h3&gt;第一步：输入你的名字&lt;/h3&gt;
+    &lt;input type=&quot;text&quot; id=&quot;userName&quot; placeholder=&quot;比如：张三&quot;&gt;
+    &lt;button onclick=&quot;startMission()&quot;&gt;发起请求&lt;/button&gt;
+
+    &lt;div id=&quot;requestPart&quot; class=&quot;box sent&quot; style=&quot;display:none&quot;&gt;
+       &lt;h4&gt;1. 发送的“数据包”实体：&lt;/h4&gt;
+       &lt;pre id=&quot;sentJson&quot;&gt;&lt;/pre&gt;
+    &lt;/div&gt;
+
+    &lt;div id=&quot;responsePart&quot; class=&quot;box response&quot; style=&quot;display:none&quot;&gt;
+       &lt;h4&gt;2. 服务器返回的“全貌”（Raw Response）：&lt;/h4&gt;
+       &lt;pre id=&quot;fullResponse&quot;&gt;&lt;/pre&gt;
+       &lt;hr&gt;
+       &lt;h4&gt;3. 最终提取的实际内容：&lt;/h4&gt;
+       &lt;p id=&quot;finalMsg&quot; style=&quot;color: green; font-weight: bold;&quot;&gt;&lt;/p&gt;
+    &lt;/div&gt;
+
+    &lt;div id=&quot;errorPart&quot; class=&quot;box error&quot; style=&quot;display:none&quot;&gt;
+       &lt;h4&gt;出错了！原因分析：&lt;/h4&gt;
+       &lt;p id=&quot;errorMsg&quot;&gt;&lt;/p&gt;
+    &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;script&gt;
+    const SERVER_IP = &quot;47.101.141.52&quot;;
+
+    async function startMission() {
+       const name = document.getElementById(&#39;userName&#39;).value;
+       const url = `http://${SERVER_IP}:8080/api/hello`;
+
+       // 重置显示状态
+       document.getElementById(&#39;requestPart&#39;).style.display = &#39;block&#39;;
+       document.getElementById(&#39;responsePart&#39;).style.display = &#39;none&#39;;
+       document.getElementById(&#39;errorPart&#39;).style.display = &#39;none&#39;;
+
+       const payload = { name: name || &quot;无名氏&quot; };
+       document.getElementById(&#39;sentJson&#39;).innerText = JSON.stringify(payload, null, 2);
+
+       try {
+          const response = await fetch(url, {
+             method: &#39;POST&#39;,
+             headers: { &#39;Content-Type&#39;: &#39;application/json&#39; },
+             body: JSON.stringify(payload)
+          });
+
+          // 如果代码运行到这里，说明请求成功了
+          document.getElementById(&#39;responsePart&#39;).style.display = &#39;block&#39;;
+
+          // 显示返回的完整状态
+          const rawInfo = `状态码: ${response.status} ${response.statusText}\n内容类型: ${response.headers.get(&#39;Content-Type&#39;)}`;
+          document.getElementById(&#39;fullResponse&#39;).innerText = rawInfo;
+
+          // 显示实际内容
+          const result = await response.json();
+          document.getElementById(&#39;finalMsg&#39;).innerText = result.reply + &quot;\n(&quot; + result.details + &quot;)&quot;;
+
+       } catch (err) {
+          // 如果出错了，显示错误
+          document.getElementById(&#39;errorPart&#39;).style.display = &#39;block&#39;;
+          document.getElementById(&#39;errorMsg&#39;).innerText =
+                &quot;无法连接到服务器。请打开devtools查看console与network两个板块：\n&quot; +
+                &quot;1. 在console中查看是否存在红色报错，记录下报错\n&quot; +
+                &quot;2. 打开network面板，查看hello的那条请求的状态码\n&quot;;
+
+          console.error(err);
+       }
+    }
+&lt;/script&gt;
+
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre></div>
+<p>Step4:
+根据上述连接服务器上传文件的方法，将main.go上传至服务器。</p>
+<p>Step5:
+打开服务器终端（bash）
+启动后端服务</p>
+<div class="code-block"><button class="copy-code-button" type="button">Copy</button><pre><code class="lang-bash">go run main.go
+</code></pre></div>
+<p>（此时任务还在进行，不要关闭终端。当测试结束后，输入ctrl+c，结束进程）</p>
+<p>Step6:</p>
+<p>双击index.html，查看是否能够完成交互，还是会报错。若报错可至devtools查看console与network栏查看报错消息与状态码。</p>
+<p>思考为什么会报错。</p>
+<details>
+<summary><strong>点击这里查看指导</strong></summary>
+由于并没有处理跨域，所以浏览器拒绝了后端返回的数据！所以我们需要修改代码，使其接受跨域。
+
+```go
+func handleRequest(w http.ResponseWriter, r *http.Request) {
+    fmt.Printf("收到来自 %s 的请求！\n", r.RemoteAddr) 
+    // 加入这三行代码，表示允许所有访问
+    w.Header().Set("Access-Control-Allow-Origin", "*")
+    w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+    w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS")
+
+    // 后续代码不变
+```
+
+再跳转至Step4尝试，至此，已经完成现在业界使用主流后端语言go编写的第一个前后端交互！
+
+</details>
+
+
+
+<h2 id="%E6%A8%A1%E5%9D%97%E5%85%AD%EF%BC%9A%E5%89%8D%E5%90%8E%E7%AB%AF%E4%BA%A4%E4%BA%92%E5%AE%9E%E4%BE%8B3">模块六：前后端交互实例3:</h2>
+<p>前端显示一个页面，提示输入一个整数。等待输入后将整数返回后端，根据映射表，后端返回内容给前端，前端再将其输出。</p>
+<p>映射表：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">输入</th>
+<th style="text-align:left">输出</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">非整数</td>
+<td style="text-align:left">Num必须是整数</td>
+</tr>
+<tr>
+<td style="text-align:left">整数</td>
+<td style="text-align:left">2*整数+1</td>
+</tr>
+</tbody>
+</table>
+<p>Step1:
+建议目录结构</p>
+<div class="code-block"><button class="copy-code-button" type="button">Copy</button><pre><code class="lang-text">go-demo2/
+├── main.go
+└── index.html
+</code></pre></div>
+<p>Step2:
+编写后端代码</p>
+<div class="code-block"><button class="copy-code-button" type="button">Copy</button><pre><code class="lang-go">package main
+
+import (
+    &quot;encoding/json&quot;
+    &quot;fmt&quot;
+    &quot;net/http&quot;
+    &quot;strconv&quot;
+)
+
+// Response 定义返回数据结构
+type Response struct {
+    Input  string      `json:&quot;input&quot;`  // 保持原始输入为字符串，方便展示
+    Result interface{} `json:&quot;result&quot;` // 使用接口类型，使其能同时支持整数和字符串
+}
+
+func main() {
+    http.HandleFunc(&quot;/api/calc&quot;, func(w http.ResponseWriter, r *http.Request) {
+       // --- 【核心：增加跨域配置】 ---
+       // 允许所有来源访问
+       w.Header().Set(&quot;Access-Control-Allow-Origin&quot;, &quot;*&quot;)
+       // 允许的请求方法
+       w.Header().Set(&quot;Access-Control-Allow-Methods&quot;, &quot;GET, POST, OPTIONS&quot;)
+       // 允许的请求头
+       w.Header().Set(&quot;Access-Control-Allow-Headers&quot;, &quot;Content-Type&quot;)
+
+       // 如果是预检请求 (OPTIONS)，直接返回
+       if r.Method == &quot;OPTIONS&quot; {
+          return
+       }
+
+       w.Header().Set(&quot;Content-Type&quot;, &quot;application/json&quot;)
+
+       // 获取参数
+       numStr := r.URL.Query().Get(&quot;num&quot;)
+
+       var resp Response
+       resp.Input = numStr
+
+       // 尝试转为整数
+       num, err := strconv.Atoi(numStr)
+
+       if err != nil {
+          // 【映射表逻辑 1】：非整数
+          resp.Result = &quot;Num 必须是整数&quot;
+       } else {
+          // 【映射表逻辑 2】：整数 -&gt; 2 * n + 1
+          resp.Result = 2*num + 1
+       }
+
+       // 返回 JSON
+       json.NewEncoder(w).Encode(resp)
+    })
+
+    fmt.Println(&quot;服务启动在 :8080 端口...&quot;)
+    http.ListenAndServe(&quot;:8080&quot;, nil)
+}
+</code></pre></div>
+<p>Step3:
+编写前端代码</p>
+<div class="code-block"><button class="copy-code-button" type="button">Copy</button><pre><code class="lang-html">&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;zh-CN&quot;&gt;
+&lt;head&gt;
+    &lt;meta charset=&quot;UTF-8&quot;&gt; &lt;!-- 设置字符编码为 UTF-8 --&gt;
+    &lt;title&gt;2*num+1 计算&lt;/title&gt; &lt;!-- 页面标题 --&gt;
+&lt;/head&gt;
+&lt;body&gt;
+&lt;h3&gt;整数映射计算器&lt;/h3&gt;
+&lt;input type=&quot;text&quot; id=&quot;numInput&quot; placeholder=&quot;请输入内容&quot;&gt;
+&lt;button onclick=&quot;calculate()&quot;&gt;提交&lt;/button&gt;
+
+&lt;div style=&quot;margin-top: 20px;&quot;&gt;
+    &lt;p&gt;输入内容：&lt;span id=&quot;showInput&quot;&gt;&lt;/span&gt;&lt;/p&gt;
+    &lt;p&gt;返回结果：&lt;b id=&quot;showResult&quot; style=&quot;color: blue;&quot;&gt;&lt;/b&gt;&lt;/p&gt;
+&lt;/div&gt;
+
+&lt;script&gt;
+    const SERVER_IP = &quot;47.101.141.52&quot;;
+    async function calculate() {
+       const val = document.getElementById(&#39;numInput&#39;).value;
+       // 调用后端接口
+       const response = await fetch(`http://${SERVER_IP}:8080/api/calc?num=${val}`);
+       const data = await response.json();
+
+       document.getElementById(&#39;showInput&#39;).innerText = data.input;
+       document.getElementById(&#39;showResult&#39;).innerText = data.result;
+    }
+&lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre></div>
+<p>Step4:
+根据上述连接服务器上传文件的方法，将main.go上传至服务器。</p>
+<p>Step5:
+打开服务器终端（bash）
+启动后端服务</p>
+<div class="code-block"><button class="copy-code-button" type="button">Copy</button><pre><code class="lang-bash">go run main.go
+</code></pre></div>
+<p>（此时任务还在进行，不要关闭终端。当测试结束后，按ctrl+c，结束进程）</p>
+<p>至此，已经完成本教程的全部内容，对前后端交互流程已有大致理解。以上go程序均为go原生http，并没有涉及到gin框架，框架后续介绍。工程上使用框架可以大幅降低代码量，常见的为go的gin框架与java的spring。</p>
+<hr>
+<h2 id="%E9%99%84%E5%BD%95%EF%BC%9A">附录：</h2>
+<p>如果出现端口被占用怎么办，两种解决方案</p>
+<p>A1:将后端服务端口换一个</p>
+<p>A2:</p>
+<div class="code-block"><button class="copy-code-button" type="button">Copy</button><pre><code class="lang-bash">sudo lsof -i :8080 #8080更改为被占用的那个端口
+kill -9 &lt;pid&gt;
+</code></pre></div>
+<hr>
+<p>END</p>
+
+        </div>
+        <nav class="post-nav" aria-label="Post navigation"><a href="frontend-backend-practice-vol-2.html"><span>Previous</span><strong>前后端交互工程实践指南 (Vol.2：Nginx反向代理与部署)</strong></a><span class="is-disabled"><span>Next</span><strong>No older post</strong></span></nav>
+      </article>
+    </main>
+    <footer class="site-footer">
+      <p>© 2026 imaginary. Built as a lightweight static academic homepage.</p>
+    </footer>
+  </body>
+</html>
