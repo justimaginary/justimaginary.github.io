@@ -51,6 +51,18 @@ function escapeHtml(value) {
     .replace(/"/g, "&quot;");
 }
 
+function normalizeSearchText(value) {
+  return String(value ?? "")
+    .replace(/```[\s\S]*?```/g, " ")
+    .replace(/`([^`]+)`/g, "$1")
+    .replace(/!\[[^\]]*]\([^)]*\)/g, " ")
+    .replace(/\[([^\]]+)]\([^)]*\)/g, "$1")
+    .replace(/<[^>]+>/g, " ")
+    .replace(/[#>*_~`|\\-]+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
 function slugify(value) {
   return String(value)
     .trim()
@@ -107,6 +119,7 @@ function readPosts() {
         date,
         categories: normalizeList(metadata.categories),
         tags: normalizeList(metadata.tags),
+        searchText: normalizeSearchText(body),
         html: addCopyButtonsToCodeBlocks(rewriteLegacyPostLinks(rewriteRenderedAssets(rendered))),
       };
     })
@@ -267,7 +280,8 @@ function renderBlogList(posts) {
   return posts
     .map((post) => {
       const meta = [post.date, ...post.categories].filter(Boolean).join(" · ");
-      return `<a class="blog-card" href="blog/${post.slug}.html">
+      const searchableText = [post.title, post.date, ...post.categories, ...post.tags, post.searchText].filter(Boolean).join(" ");
+      return `<a class="blog-card" href="blog/${post.slug}.html" data-search="${escapeHtml(searchableText)}">
             <h3>${escapeHtml(post.title)}</h3>
             <p class="blog-card__meta">${escapeHtml(meta)}</p>
             ${renderCategories(post.categories)}
@@ -300,7 +314,7 @@ function main() {
   for (const [index, post] of posts.entries()) {
     fs.writeFileSync(path.join(blogDir, `${post.slug}.html`), postTemplate(post, posts[index - 1], posts[index + 1]));
   }
-  fs.writeFileSync(path.join(blogDir, "posts.json"), JSON.stringify(posts.map(({ html, ...post }) => post), null, 2));
+  fs.writeFileSync(path.join(blogDir, "posts.json"), JSON.stringify(posts.map(({ html, searchText, ...post }) => post), null, 2));
   updateIndex(posts);
   console.log(`Generated ${posts.length} blog posts.`);
 }
