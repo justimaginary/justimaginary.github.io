@@ -744,24 +744,31 @@ h3 {
   }
 
   .nav {
-    align-items: flex-start;
-    flex-direction: column;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
     padding: 0.7rem 0;
   }
 
+  .nav__brand {
+    flex: 1 0 100%;
+  }
+
   .nav__links {
-    width: 100%;
+    flex: 1 1 0;
+    width: auto;
+    margin-left: 0;
   }
 
   .nav__search {
-    width: 100%;
-    flex-basis: auto;
+    width: auto;
+    flex: 0 0 auto;
   }
 
   .search-panel {
-    right: auto;
-    left: 0;
-    width: 100%;
+    right: 0;
+    left: auto;
+    width: min(430px, calc(100vw - 32px));
   }
 
   .hero {
